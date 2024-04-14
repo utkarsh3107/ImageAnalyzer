@@ -10,6 +10,9 @@ import android.util.Log;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.utils.JSONMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
     private static final int DATABASE_VERSION = 2;
@@ -47,16 +50,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public ImageData getImageContext(String name) {
-        ImageData result = null;
+    public List<ImageData> getImageContext(String name) {
+        List<ImageData> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_IMAGES, new String[]{COLUMN_CONTEXT},
                 COLUMN_NAME + "=?", new String[]{name}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
-            if(colIndex >= 0) {
-                result = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
-            }
+            do{
+                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
+                if(colIndex >= 0) {
+                    result.add(JSONMapper.toObject(cursor.getString(colIndex),ImageData.class));
+                }
+            }while(cursor.moveToNext());
             cursor.close();
         }
         db.close();

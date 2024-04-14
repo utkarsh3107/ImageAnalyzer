@@ -39,6 +39,8 @@ dependencies {
     implementation(libs.sqlite)
     implementation(libs.exifinterface)
     //implementation("com.drewnoakes:metadata-extractor:2.19.0")
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
     implementation(libs.gson)
     implementation(libs.metadata.extractor)
     testImplementation(libs.junit)

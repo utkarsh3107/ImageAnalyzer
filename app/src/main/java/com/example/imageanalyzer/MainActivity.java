@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Spinner;
@@ -29,6 +30,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+
+import com.bumptech.glide.Glide;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.utils.ImageUtils;
@@ -40,9 +43,10 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText imageNameEditText;
     private TextView imageSizeTextView;
-    private ImageView imageView;
     private Spinner spinnerAttribute;
     private DBHelper dbHelper;
+    private LinearLayout imageContainer;
+
 
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
 
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         imageNameEditText = findViewById(R.id.imageNameEditText);
         spinnerAttribute = findViewById(R.id.spinnerAttribute);
         imageSizeTextView = findViewById(R.id.imageSizeTextView);
-        imageView = findViewById(R.id.imageView);
+        imageContainer = findViewById(R.id.imageContainer);
 
         ArrayAdapter<CharSequence> attributeAdapter = ArrayAdapter.createFromResource(
                 this,
@@ -88,43 +92,27 @@ public class MainActivity extends AppCompatActivity {
 
         if(imageName.isEmpty() || selectedAttribute.isEmpty()){
             imageSizeTextView.setText("Incorrect values selected");
-            imageView.setImageDrawable(null);
+            displaySelectedImages(null);
             return;
         }
         switch(selectedAttribute){
             case "Object Detection":
                 imageSizeTextView.setText("Object Detection in progress");
-                imageView.setImageDrawable(null);
+                displaySelectedImages(null);
                 break;
             case "Text Identification":
                 imageSizeTextView.setText("Text Identification in progress");
-                imageView.setImageDrawable(null);
+                displaySelectedImages(null);
                 break;
             case "Attribute Analysis":
-                ImageData imageContext = dbHelper.getImageContext(imageName);
-                imageSizeTextView.setText("Path: " + imageContext.getImagePath() + " bytes");
-                displayImage(imageName);
+                List<ImageData> imageContext = dbHelper.getImageContext(imageName);
+                //imageSizeTextView.setText("Path: " + imageContext + " bytes");
+                displaySelectedImages(imageContext);
                 break;
             default:
                 break;
         }
 
-    }
-
-    private void displayImage(String imageName) {
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Images.Media.DISPLAY_NAME + "=?";
-        String[] selectionArgs = new String[]{imageName};
-        Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int colIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            if(colIndex >= 0){
-                long id = cursor.getLong(colIndex);
-                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                imageView.setImageURI(imageUri);
-            }
-            cursor.close();
-        }
     }
 
     private void checkPermissionAndReadImages() {
@@ -154,6 +142,32 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void displaySelectedImages(List<ImageData> imageDataList) {
+        if(imageDataList == null || imageDataList.isEmpty()){
+            Toast.makeText(this, "No images to display", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (ImageData eachImage : imageDataList) {
+            Uri uri = Uri.parse(eachImage.getImagePath());
+            ImageView imageView = new ImageView(this);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            layoutParams.setMargins(0, 0, 0, 16);
+            imageView.setLayoutParams(layoutParams);
+
+            Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.placeholder_image)
+                    .error(R.drawable.error_image)
+                    .into(imageView);
+
+            imageContainer.addView(imageView);
+        }
+    }
+
     private void readImagesFromGalleryAndStoreInDatabase() {
 
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
