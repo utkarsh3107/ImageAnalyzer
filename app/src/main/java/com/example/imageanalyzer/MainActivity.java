@@ -30,6 +30,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.utils.ImageUtils;
+import com.example.imageanalyzer.utils.JSONMapper;
 
 import java.util.List;
 
@@ -66,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
         fetchImageButton.setOnClickListener(view -> {
             String imageName = imageNameEditText.getText().toString().trim();
             if (!imageName.isEmpty()) {
-                long imageSize = dbHelper.getImageSize(imageName);
-                if (imageSize != -1) {
-                    imageSizeTextView.setText("Size: " + imageSize + " bytes");
+                ImageData imageContext = dbHelper.getImageContext(imageName);
+                if (imageContext != null) {
+                    imageSizeTextView.setText("Path: " + imageContext.getImagePath() + " bytes");
                     // Load image from gallery and display
                     displayImage(imageName);
                 } else {
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         for (ImageData imageData : imageNames) {
             long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
             if (imageSize != -1) {
-                dbHelper.addImage(imageData.getImageName(), imageSize);
+                dbHelper.addImage(imageData.getImageName(), imageData);
             }
         }
 

@@ -1,15 +1,22 @@
 package com.example.imageanalyzer.beans;
 
+import com.example.imageanalyzer.beans.enums.ImageType;
+
 public class ImageData {
     private long imageId;
     private String imageName;
+    private ImageType imageType;
     private String imagePath;
     private long imageSize;
     private int imageWidth;
     private int imageHeight;
     private long imageDateTaken;
 
-    public ImageData(long imageId, String imageName, String imagePath, long imageSize, int imageWidth, int imageHeight, long imageDateTaken) {
+    private ExifMetadata exifMetadata;
+
+    private GPSMetadata gpsMetadata;
+
+    public ImageData(long imageId, String imageName, String imagePath, long imageSize, int imageWidth, int imageHeight, long imageDateTaken, ImageType imageType) {
         this.imageId = imageId;
         this.imageName = imageName;
         this.imagePath = imagePath;
@@ -17,6 +24,7 @@ public class ImageData {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
         this.imageDateTaken = imageDateTaken;
+        this.imageType = imageType;
     }
 
     public long getImageId() {
@@ -25,6 +33,14 @@ public class ImageData {
 
     public String getImageName() {
         return imageName;
+    }
+
+    public ImageType getImageType() {
+        return imageType;
+    }
+
+    public void setImageType(ImageType imageType) {
+        this.imageType = imageType;
     }
 
     public String getImagePath() {
@@ -47,16 +63,35 @@ public class ImageData {
         return imageDateTaken;
     }
 
+    public ExifMetadata getExifMetadata() {
+        return exifMetadata;
+    }
+
+    public void setExifMetadata(ExifMetadata exifMetadata) {
+        this.exifMetadata = exifMetadata;
+    }
+
+    public GPSMetadata getGpsMetadata() {
+        return gpsMetadata;
+    }
+
+    public void setGpsMetadata(GPSMetadata gpsMetadata) {
+        this.gpsMetadata = gpsMetadata;
+    }
+
     @Override
     public String toString() {
         return "ImageData{" +
                 "imageId=" + imageId +
                 ", imageName='" + imageName + '\'' +
+                ", imageType=" + imageType +
                 ", imagePath='" + imagePath + '\'' +
                 ", imageSize=" + imageSize +
                 ", imageWidth=" + imageWidth +
                 ", imageHeight=" + imageHeight +
                 ", imageDateTaken=" + imageDateTaken +
+                ", exifMetadata=" + exifMetadata +
+                ", gpsMetadata=" + gpsMetadata +
                 '}';
     }
 }
