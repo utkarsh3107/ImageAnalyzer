@@ -32,11 +32,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.example.imageanalyzer.utils.JSONMapper;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -144,12 +148,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displaySelectedImages(List<ImageData> imageDataList) {
+
         if(imageDataList == null || imageDataList.isEmpty()){
             Toast.makeText(this, "No images to display", Toast.LENGTH_SHORT).show();
             return;
         }
+        imageContainer.removeAllViews();
+
         for (ImageData eachImage : imageDataList) {
-            Uri uri = Uri.parse(eachImage.getImagePath());
+            File imageFile = new File(eachImage.getImagePath());
+            Uri imageUri = Uri.fromFile(imageFile);
             ImageView imageView = new ImageView(this);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -158,8 +166,14 @@ public class MainActivity extends AppCompatActivity {
             layoutParams.setMargins(0, 0, 0, 16);
             imageView.setLayoutParams(layoutParams);
 
+            RequestOptions options = new RequestOptions()
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE);
+
             Glide.with(this)
-                    .load(uri)
+                    .load(imageUri)
+                    .skipMemoryCache(true)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
                     .placeholder(R.drawable.placeholder_image)
                     .error(R.drawable.error_image)
                     .into(imageView);
