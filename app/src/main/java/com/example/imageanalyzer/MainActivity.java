@@ -12,11 +12,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Spinner;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText imageNameEditText;
     private TextView imageSizeTextView;
     private ImageView imageView;
+    private Spinner spinnerAttribute;
     private DBHelper dbHelper;
 
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
@@ -49,8 +52,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageNameEditText = findViewById(R.id.imageNameEditText);
+        spinnerAttribute = findViewById(R.id.spinnerAttribute);
         imageSizeTextView = findViewById(R.id.imageSizeTextView);
         imageView = findViewById(R.id.imageView);
+
+        ArrayAdapter<CharSequence> attributeAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.attributes_array,
+                android.R.layout.simple_spinner_item
+        );
+
+        attributeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAttribute.setAdapter(attributeAdapter);
 
         dbHelper = new DBHelper(this);
 
@@ -65,22 +78,37 @@ public class MainActivity extends AppCompatActivity {
         // Button click event to fetch image size and display
         Button fetchImageButton = findViewById(R.id.fetchImageButton);
         fetchImageButton.setOnClickListener(view -> {
-            String imageName = imageNameEditText.getText().toString().trim();
-            if (!imageName.isEmpty()) {
-                ImageData imageContext = dbHelper.getImageContext(imageName);
-                if (imageContext != null) {
-                    imageSizeTextView.setText("Path: " + imageContext.getImagePath() + " bytes");
-                    // Load image from gallery and display
-                    displayImage(imageName);
-                } else {
-                    imageSizeTextView.setText("Image not found in database");
-                    imageView.setImageDrawable(null);
-                }
-            } else {
-                imageSizeTextView.setText("Please enter an image name");
-                imageView.setImageDrawable(null);
-            }
+            searchImageMetaData();
         });
+    }
+
+    private void searchImageMetaData(){
+        String imageName = imageNameEditText.getText().toString().trim();
+        String selectedAttribute = spinnerAttribute.getSelectedItem().toString();
+
+        if(imageName.isEmpty() || selectedAttribute.isEmpty()){
+            imageSizeTextView.setText("Incorrect values selected");
+            imageView.setImageDrawable(null);
+            return;
+        }
+        switch(selectedAttribute){
+            case "Object Detection":
+                imageSizeTextView.setText("Object Detection in progress");
+                imageView.setImageDrawable(null);
+                break;
+            case "Text Identification":
+                imageSizeTextView.setText("Text Identification in progress");
+                imageView.setImageDrawable(null);
+                break;
+            case "Attribute Analysis":
+                ImageData imageContext = dbHelper.getImageContext(imageName);
+                imageSizeTextView.setText("Path: " + imageContext.getImagePath() + " bytes");
+                displayImage(imageName);
+                break;
+            default:
+                break;
+        }
+
     }
 
     private void displayImage(String imageName) {

@@ -8,16 +8,33 @@
         android:id="@+id/imageNameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter image name"
+        android:hint="Attributes"
         android:inputType="text" />
+
+    <TextView
+        android:id="@+id/spinnerCategoryTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageNameEditText"
+        android:text="Search Category: "
+        android:layout_marginTop="16dp"
+        android:textSize="18sp" />
+
+    <Spinner
+        android:id="@+id/spinnerAttribute"
+        android:layout_below="@id/imageNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/spinnerCategoryTextView"
+        android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/fetchImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/imageNameEditText"
+        android:layout_below="@id/spinnerAttribute"
         android:layout_marginTop="16dp"
-        android:text="Fetch Image" />
+        android:text="Search" />
 
     <TextView
         android:id="@+id/imageSizeTextView"
@@ -40,7 +57,7 @@
         android:id="@+id/readImagesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_below="@id/imageView"
         android:text="Read Images from Gallery and Store in Database" />
 
 </RelativeLayout>
