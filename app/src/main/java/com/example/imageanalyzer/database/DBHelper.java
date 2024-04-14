@@ -10,9 +10,12 @@ import android.util.Log;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.utils.JSONMapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String TABLE_IMAGES = "images";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_NAME = "name";
@@ -26,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String createTableQuery = "CREATE TABLE " + TABLE_IMAGES + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_NAME + " TEXT, " +
+                COLUMN_NAME + " TEXT UNIQUE, " +
                 COLUMN_CONTEXT + " TEXT)";
         db.execSQL(createTableQuery);
     }
@@ -43,20 +46,23 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_NAME, name);
         values.put(COLUMN_CONTEXT, JSONMapper.toJSON(imageData));
-        db.insert(TABLE_IMAGES, null, values);
+        db.insertWithOnConflict(TABLE_IMAGES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
         db.close();
     }
 
-    public ImageData getImageContext(String name) {
-        ImageData result = null;
+    public List<ImageData> getImageContext(String name) {
+        List<ImageData> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_IMAGES, new String[]{COLUMN_CONTEXT},
                 COLUMN_NAME + "=?", new String[]{name}, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
-            if(colIndex >= 0) {
-                result = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
-            }
+        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            do{
+                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
+                if(colIndex >= 0) {
+                    result.add(JSONMapper.toObject(cursor.getString(colIndex),ImageData.class));
+                }
+            }while(cursor.moveToNext());
             cursor.close();
         }
         db.close();
