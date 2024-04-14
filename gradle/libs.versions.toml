@@ -1,5 +1,6 @@
 [versions]
 agp = "8.3.2"
+exif_interface = "1.3.3"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -12,6 +13,8 @@ roomRuntimeVersion = "2.5.0"
 sqlite = "2.4.0"
 
 [libraries]
+exif_interface = { module = "androidx.exifinterface:exif interface", version.ref = "exif_interface" }
+exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exif_interface" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

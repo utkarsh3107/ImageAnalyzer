@@ -27,6 +27,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.utils.ImageUtils;
 
@@ -126,12 +127,12 @@ public class MainActivity extends AppCompatActivity {
     }
     private void readImagesFromGalleryAndStoreInDatabase() {
 
-        List<String> imageNames = ImageUtils.getAllImageNames(this);
+        List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
-        for (String imageName : imageNames) {
-            long imageSize = ImageUtils.getImageSize(this, imageName);
+        for (ImageData imageData : imageNames) {
+            long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
             if (imageSize != -1) {
-                dbHelper.addImage(imageName, imageSize);
+                dbHelper.addImage(imageData.getImageName(), imageSize);
             }
         }
 
