@@ -1,16 +1,9 @@
 package com.example.imageanalyzer;
 
-import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VIDEO;
-import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
-
-import android.content.ContentUris;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,14 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Spinner;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 
 import com.bumptech.glide.Glide;
@@ -37,8 +26,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageUtils;
-import com.example.imageanalyzer.utils.JSONMapper;
 
 import java.io.File;
 import java.util.List;
@@ -101,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         }
         switch(selectedAttribute){
             case "Object Detection":
-                imageSizeTextView.setText("Object Detection in progress");
-                displaySelectedImages(null);
+                List<ImageData> objectImages = dbHelper.fetchImageForObjectKeywords(imageName);
+                displaySelectedImages(objectImages);
                 break;
             case "Text Identification":
                 imageSizeTextView.setText("Text Identification in progress");
@@ -148,12 +137,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displaySelectedImages(List<ImageData> imageDataList) {
+        imageContainer.removeAllViews();
 
         if(imageDataList == null || imageDataList.isEmpty()){
             Toast.makeText(this, "No images to display", Toast.LENGTH_SHORT).show();
             return;
         }
-        imageContainer.removeAllViews();
 
         for (ImageData eachImage : imageDataList) {
             File imageFile = new File(eachImage.getImagePath());
@@ -187,10 +176,18 @@ public class MainActivity extends AppCompatActivity {
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
         for (ImageData imageData : imageNames) {
-            long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
-            if (imageSize != -1) {
-                dbHelper.addImage(imageData.getImageName(), imageData);
+            try{
+                YoloV5Detector objectDetector = new YoloV5Detector(this);
+                objectDetector.detectImages(imageData);
+                System.out.println(imageData);
+                long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
+                if (imageSize != -1) {
+                    dbHelper.addImage(imageData.getImageName(), imageData);
+                }
+            }catch(Exception ex){
+                Log.i("MainActivity", "Got exception: " + ex);
             }
+
         }
 
         Toast.makeText(this, "Images stored in database", Toast.LENGTH_SHORT).show();

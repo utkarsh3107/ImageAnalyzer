@@ -2,6 +2,7 @@ package com.example.imageanalyzer.utils;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -16,6 +17,8 @@ import com.example.imageanalyzer.beans.GPSMetadata;
 import com.example.imageanalyzer.beans.ICCProfileMetadata;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ExifMetadata;
+import com.example.imageanalyzer.beans.ObjectsRecognition;
+import com.example.imageanalyzer.beans.Recognition;
 import com.example.imageanalyzer.beans.enums.ImageType;
 
 
@@ -56,7 +59,7 @@ public class ImageUtils {
             cursor.close();
         }
 
-        System.out.println(imageDataList);
+        //System.out.println(imageDataList);
         return imageDataList;
     }
 
@@ -144,6 +147,36 @@ public class ImageUtils {
             Log.e("Image Metadata", "Error determining image type: " + e.getMessage());
         }
         return result;
+    }
+
+    private static Uri convertToUri(String imagePath){
+        File imageFile = new File(imagePath);
+        return Uri.fromFile(imageFile);
+    }
+
+    private static Bitmap convertToBitmap(Context context, Uri imageUri){
+        Bitmap result = null;
+        try{
+            result = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+        }catch(Exception ex){
+            Log.i("ImageUtils.convertToBitmap","Error occured while converting to bitmap", ex);
+        }
+        return result;
+    }
+
+    public static Bitmap convertToBitmap(Context context, String imagePath){
+        Uri uri = convertToUri(imagePath);
+        return convertToBitmap(context, uri);
+    }
+
+    public static void initObjects(ImageData imageData, List<Recognition> objectsFound){
+        if(imageData.getObjectsRecognition() == null){
+            imageData.setObjectsRecognition(new ObjectsRecognition());
+        }
+
+        for(Recognition eachRecognition : objectsFound){
+            imageData.getObjectsRecognition().addObject(eachRecognition.getLabelName());
+        }
     }
 }
 

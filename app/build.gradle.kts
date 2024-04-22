@@ -29,6 +29,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        mlModelBinding = true
+    }
 }
 
 dependencies {
@@ -38,6 +41,13 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.sqlite)
     implementation(libs.exifinterface)
+    implementation ("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation ("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
+    implementation ("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    //implementation(libs.tensorflow.lite)
+    //implementation(libs.tensorflow.lite.support)
+    //implementation(libs.tensorflow.lite.metadata)
     //implementation("com.drewnoakes:metadata-extractor:2.19.0")
     implementation(libs.glide)
     annotationProcessor(libs.compiler)

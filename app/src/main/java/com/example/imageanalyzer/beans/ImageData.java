@@ -2,6 +2,8 @@ package com.example.imageanalyzer.beans;
 
 import com.example.imageanalyzer.beans.enums.ImageType;
 
+import java.util.List;
+
 public class ImageData {
     private long imageId;
     private String imageName;
@@ -12,6 +14,7 @@ public class ImageData {
     private int imageHeight;
     private long imageDateTaken;
 
+    private ObjectsRecognition objectsRecognition;
     private ExifMetadata exifMetadata;
 
     private GPSMetadata gpsMetadata;
@@ -79,6 +82,13 @@ public class ImageData {
         this.gpsMetadata = gpsMetadata;
     }
 
+    public ObjectsRecognition getObjectsRecognition() {
+        return objectsRecognition;
+    }
+
+    public void setObjectsRecognition(ObjectsRecognition objectsRecognition) {
+        this.objectsRecognition = objectsRecognition;
+    }
     @Override
     public String toString() {
         return "ImageData{" +
@@ -90,6 +100,7 @@ public class ImageData {
                 ", imageWidth=" + imageWidth +
                 ", imageHeight=" + imageHeight +
                 ", imageDateTaken=" + imageDateTaken +
+                ", objectsRecognition=" + objectsRecognition +
                 ", exifMetadata=" + exifMetadata +
                 ", gpsMetadata=" + gpsMetadata +
                 '}';

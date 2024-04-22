@@ -9,13 +9,15 @@ import android.util.Log;
 
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.utils.JSONMapper;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_IMAGES = "images";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_NAME = "name";
@@ -50,6 +52,57 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public List<ImageData> fetchImageForObjectKeywords(String keyword){
+        List<ImageData> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_IMAGES;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            do {
+                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
+                if(colIndex >= 0) {
+                    ImageData imageObj = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
+                    Log.i("Database", "DB imageObj: " + JSONMapper.toJSON(imageObj));
+                    if(imageObj.getObjectsRecognition() != null ){
+                        if(imageObj.getObjectsRecognition().getObjectsDetected() != null && !imageObj.getObjectsRecognition().getObjectsDetected().isEmpty()){
+                            Set<String> objects = imageObj.getObjectsRecognition().getObjectsDetected();
+                            Log.i("Checking","Found objects" + JSONMapper.toJSON(objects));
+                            if(objects.contains(keyword)){
+                                result.add(imageObj);
+                            }
+                        }
+                    }
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return result;
+    }
+    /*
+    public List<ImageData> fetchImageForObjectKeywords(String keyword){
+        List<ImageData> result = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query ="SELECT "+ COLUMN_CONTEXT +" FROM "+ TABLE_IMAGES  +" WHERE EXISTS (SELECT 1 FROM json_each(json_extract( "+ COLUMN_CONTEXT +", '$.objectsRecognition.objectsDetected')) WHERE value LIKE '%" + keyword +"%');";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do{
+                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
+                if(colIndex >= 0) {
+                    result.add(JSONMapper.toObject(cursor.getString(colIndex),ImageData.class));
+                }
+            }while(cursor.moveToNext());
+            cursor.close();
+        }
+
+        return result;
+    }
+*/
     public List<ImageData> getImageContext(String name) {
         List<ImageData> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
