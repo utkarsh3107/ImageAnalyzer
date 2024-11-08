@@ -51,4 +51,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public int getItemCount() {
         return imageList.size();
     }
+
+    public void updateImageList(List<String> newImageList) {
+        this.imageList = newImageList;
+        notifyDataSetChanged();
+    }
 }

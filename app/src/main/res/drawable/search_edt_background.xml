@@ -3,8 +3,8 @@
     <item>
         <shape android:shape="rectangle">
             <gradient
-                android:startColor="#ff9c59"
-                android:endColor="#ff7e26"
+                android:startColor="@color/orange_dark"
+                android:endColor="@color/orange_light"
                 android:angle="180"/> <!-- Angle 0 makes it go from left to right -->
 
             <!-- Define rounded corners -->
