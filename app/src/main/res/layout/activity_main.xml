@@ -66,4 +66,13 @@
         android:layout_below="@id/fetchImageButton"
         android:text="Read Images from Gallery and Store in Database" />
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/readImagesButton"
+        android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter" />
+
 </RelativeLayout>

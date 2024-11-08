@@ -45,6 +45,8 @@ dependencies {
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.14.0")
     implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
     implementation ("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+    implementation ("com.quickbirdstudios:opencv:4.5.3.0")
+    implementation ("org.tensorflow:tensorflow-lite-select-tf-ops:2.11.0")
     //implementation(libs.tensorflow.lite)
     //implementation(libs.tensorflow.lite.support)
     //implementation(libs.tensorflow.lite.metadata)

@@ -22,6 +22,12 @@ import com.example.imageanalyzer.beans.Recognition;
 import com.example.imageanalyzer.beans.enums.ImageType;
 
 
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
+import org.tensorflow.lite.support.image.ImageProcessor;
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.image.ops.ResizeOp;
+import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -149,7 +155,7 @@ public class ImageUtils {
         return result;
     }
 
-    private static Uri convertToUri(String imagePath){
+    public static Uri convertToUri(String imagePath){
         File imageFile = new File(imagePath);
         return Uri.fromFile(imageFile);
     }
@@ -177,6 +183,47 @@ public class ImageUtils {
         for(Recognition eachRecognition : objectsFound){
             imageData.getObjectsRecognition().addObject(eachRecognition.getLabelName());
         }
+    }
+
+    public static Bitmap createEmptyBitmap(int displayImageSize, int displayImageSize1,int color) {
+        Bitmap ret = Bitmap.createBitmap(displayImageSize, displayImageSize1, Bitmap.Config.RGB_565);
+        if (color != 0) {
+            ret.eraseColor(color);
+        }
+        return ret;
+    }
+
+    public static TensorImage bitmapToTensorImageForDetection(Bitmap bitmapIn, int width, int height, float[] means, float[] stds) {
+        ImageProcessor imageProcessor = new ImageProcessor.Builder()
+                .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.BILINEAR))
+                .add(new NormalizeOp(means, stds))
+                .build();
+
+        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+        tensorImage.load(bitmapIn);
+        return imageProcessor.process(tensorImage);
+    }
+
+    public static TensorImage bitmapToTensorImageForRecognition(Bitmap bitmapIn, int width, int height, float mean, float std) {
+        // Create an ImageProcessor to apply operations to the input image
+        ImageProcessor imageProcessor =
+                new ImageProcessor.Builder()
+                        .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.BILINEAR))
+                        .add(new TransformToGrayscaleOp())
+                        .add(new NormalizeOp(mean, std))
+                        .build();
+
+        // Create a new TensorImage object of data type FLOAT32
+        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+
+        // Load the input bitmap into the TensorImage
+        tensorImage.load(bitmapIn);
+
+        // Process the TensorImage using the ImageProcessor
+        tensorImage = imageProcessor.process(tensorImage);
+
+        // Return the processed TensorImage
+        return tensorImage;
     }
 }
 
