@@ -5,4 +5,6 @@
         <item>Text Identification</item>
         <item>Attribute Analysis</item>
     </string-array>
+    <string name="current_gallery">CURRENT GALLERY</string>
+    <string name="search_results">SEARCH RESULTS</string>
 </resources>

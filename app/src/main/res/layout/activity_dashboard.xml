@@ -71,7 +71,7 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/gallerySubHeaderText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -177,7 +177,7 @@
         </com.google.android.material.bottomappbar.BottomAppBar>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/reloadData"
+            android:id="@+id/readImagesButton"
             style="@style/Floating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
