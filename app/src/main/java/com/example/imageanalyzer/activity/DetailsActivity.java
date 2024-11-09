@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -27,16 +28,21 @@ import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    private ImageView backgroundImage;
+    private ImageView backgroundImage, backImg;
     private LinearLayout roundedBar, detailedInfoSection;
     private AppCompatButton overviewButton;
-
-
+    private ImageData image;
+    private TextView imageDimensions, imageSize,imageDate, objectsIdentified, textIdentified;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_details);
+
+        image = (ImageData) getIntent().getSerializableExtra("backendObject");
+        if (image == null) {
+            Log.i("DetailsActivity", "Got empty imageobject: ");
+        }
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
@@ -48,11 +54,16 @@ public class DetailsActivity extends AppCompatActivity {
         roundedBar = findViewById(R.id.rounded_bar);
         overviewButton = findViewById(R.id.overviewButton);
         detailedInfoSection = findViewById(R.id.detailed_info_section);
+        imageDimensions = findViewById(R.id.image_dimensions_value);
+        imageSize = findViewById(R.id.image_size_value);
+        imageDate=  findViewById(R.id.image_date_value);
+        objectsIdentified=  findViewById(R.id.objects_identified_value);
+        textIdentified =  findViewById(R.id.text_identified_value);
+        backImg = findViewById(R.id.backImg);
         RelativeLayout.LayoutParams buttonLayoutParams = (RelativeLayout.LayoutParams) overviewButton.getLayoutParams();
 
         // Get the image path passed from the previous screen
-        List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
-        String imagePath = imageNames.get(0).getImagePath();
+        String imagePath = image.getImagePath();
 
         // Set the background image dynamically
         if (imagePath != null) {
@@ -88,32 +99,27 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
-        /*
-        overviewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (detailedInfoSection.getVisibility() == View.GONE) {
-                    // Set detailed section to visible
-                    detailedInfoSection.setVisibility(View.VISIBLE);
 
-                    // Move the button higher on the screen when expanded
-                    buttonLayoutParams.removeRule(RelativeLayout.ABOVE);
-                    buttonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-                    buttonLayoutParams.topMargin = 520;  // Adjust the value as needed
-                    overviewButton.setLayoutParams(buttonLayoutParams);
-                } else {
-                    // Set detailed section to gone
-                    detailedInfoSection.setVisibility(View.GONE);
+        backImg.setOnClickListener(v ->finish());
 
+        init(image);
+    }
 
-                    // Return the button to its original position
-                    buttonLayoutParams.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    buttonLayoutParams.addRule(RelativeLayout.ABOVE, R.id.rounded_bar);
-                    buttonLayoutParams.bottomMargin = -60; // Adjust the value as needed
-                    overviewButton.setLayoutParams(buttonLayoutParams);
-                }
-            }
-        });*/
+    private void init(ImageData image){
 
+        if(image.getImageHeight() != 0 && image.getImageWidth() != 0){
+            imageDimensions.setText(String.format("%d x %d",image.getImageHeight() , image.getImageWidth()));
+        }
+        if(image.getImageSize() != 0 ){
+            imageSize.setText(String.format("%d KB", image.getImageSize()));
+        }
+
+        if(image.getImageDateTaken() != 0){
+            imageDate.setText(String.format("%d", image.getImageDateTaken()));
+        }
+
+        if(image.getObjectsRecognition() != null && !image.getObjectsRecognition().getObjectsDetected().isEmpty()){
+            objectsIdentified.setText(String.join(", ", image.getObjectsRecognition().getObjectsDetected().toString()));
+        }
     }
 }

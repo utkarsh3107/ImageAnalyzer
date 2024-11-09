@@ -23,12 +23,14 @@
             android:id="@+id/backImg"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_back" />
 
         <ImageView
             android:id="@+id/favorite_icon"
+            android:layout_marginTop="20dp"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_alignParentEnd="true"
@@ -78,7 +80,7 @@
             android:layout_marginTop="3dp"
             android:fontFamily="@font/europa_regular_webfont"
             android:gravity="center_vertical"
-            android:text="Digital Illustration"
+            android:text="Image Illustration"
             android:textColor="@android:color/black"
             android:textSize="13sp" />
     </LinearLayout>
@@ -91,87 +93,115 @@
         android:layout_height="500dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/artist_title"
+            android:id="@+id/image_dimensions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Artist"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="16dp"
+            android:text="Dimensions"
+            style="@style/descriptionKey" />
 
         <TextView
-            android:id="@+id/artist_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Ken Taylor"
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
-
-        <!-- Additional Details -->
-        <TextView
-            android:id="@+id/size_title"
+            android:id="@+id/image_dimensions_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="NA"
+            style="@style/descriptionValue" />
+
+        <TextView
+            android:id="@+id/image_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
             android:text="Size"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            style="@style/descriptionKey" />
 
         <TextView
-            android:id="@+id/size_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="12x16 &quot; (30.5x40.6 cm)"
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
-
-        <!-- Additional Details -->
-        <TextView
-            android:id="@+id/location_title"
+            android:id="@+id/image_size_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Location"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="16dp"
+            android:text="NA"
+            style="@style/descriptionValue" />
 
         <TextView
-            android:id="@+id/location_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="The Museum of Modern Art, Melbourne, Australia"
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
-
-        <!-- Additional Detailed Information -->
-        <TextView
-            android:id="@+id/audio_guide_title"
+            android:id="@+id/image_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Audio guide"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="16dp"
+            android:text="Date"
+            style="@style/descriptionKey" />
 
         <TextView
-            android:id="@+id/audio_guide_info"
+            android:id="@+id/image_date_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Podcast with Ken Taylor #218"
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="NA"
+            style="@style/descriptionValue" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/objects_identified"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="Objects Detected"
+            style="@style/descriptionKey" />
+
+        <TextView
+            android:id="@+id/objects_identified_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="NA"
+            style="@style/descriptionValue" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/text_identified"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="Text Idenitfied"
+            style="@style/descriptionKey" />
+
+        <TextView
+            android:id="@+id/text_identified_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:text="NA"
+            style="@style/descriptionValue" />
     </LinearLayout>
 </RelativeLayout>

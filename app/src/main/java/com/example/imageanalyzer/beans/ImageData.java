@@ -2,9 +2,10 @@ package com.example.imageanalyzer.beans;
 
 import com.example.imageanalyzer.beans.enums.ImageType;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ImageData {
+public class ImageData implements Serializable {
     private long imageId;
     private String imageName;
     private ImageType imageType;

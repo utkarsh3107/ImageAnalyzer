@@ -100,29 +100,21 @@ public class DashboardActivity extends AppCompatActivity {
     private void loadFullGallery(){
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
         gallerySubHeaderText.setText(R.string.current_gallery);
-        List<String> imageList = new ArrayList<>();
-        for(ImageData eachImage: imageNames){
-            imageList.add(eachImage.getImagePath());
-        }
 
         StaggeredGridLayoutManager staggeredGridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        recyclerView.setAdapter(new ImageAdapter(this, imageList));
+        recyclerView.setAdapter(new ImageAdapter(this, imageNames));
     }
 
     private void searchImages(String query){
         List<ImageData> objectImages = dbHelper.fetchImageForObjectKeywords(query);
         gallerySubHeaderText.setText(R.string.search_results);
-        List<String> imageList = new ArrayList<>();
-        for(ImageData eachImage: objectImages){
-            imageList.add(eachImage.getImagePath());
-        }
 
         StaggeredGridLayoutManager staggeredGridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        recyclerView.setAdapter(new ImageAdapter(this, imageList));
+        recyclerView.setAdapter(new ImageAdapter(this, objectImages));
 
     }
 
