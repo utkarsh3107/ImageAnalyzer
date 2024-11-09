@@ -1,6 +1,8 @@
 package com.example.imageanalyzer.beans;
 
-public class GPSMetadata {
+import java.io.Serializable;
+
+public class GPSMetadata implements Serializable {
 
     private String latitudeRef;
     private double latitude;

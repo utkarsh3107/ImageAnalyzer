@@ -81,6 +81,27 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return result;
     }
+
+    public List<ImageData> fetchImages(){
+        List<ImageData> result = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_IMAGES;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(query, null);
+        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        if (cursor.moveToFirst()) {
+            do {
+                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
+                if(colIndex >= 0) {
+                    ImageData imageObj = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
+                    result.add(imageObj);
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return result;
+    }
     /*
     public List<ImageData> fetchImageForObjectKeywords(String keyword){
         List<ImageData> result = new ArrayList<>();

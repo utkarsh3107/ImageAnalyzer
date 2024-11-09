@@ -1,6 +1,8 @@
 package com.example.imageanalyzer.beans;
 
-public class ExifMetadata {
+import java.io.Serializable;
+
+public class ExifMetadata implements Serializable {
 
     private String cameraModel;
     private String dateTimeOriginal;

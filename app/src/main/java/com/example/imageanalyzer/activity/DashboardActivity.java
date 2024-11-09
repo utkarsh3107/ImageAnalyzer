@@ -98,7 +98,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadFullGallery(){
-        List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
+        List<ImageData> imageNames = dbHelper.fetchImages();
         gallerySubHeaderText.setText(R.string.current_gallery);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager =
