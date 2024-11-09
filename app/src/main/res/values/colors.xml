@@ -9,4 +9,6 @@
     <color name="orange_dark">#FF4D3C</color>
     <color name="orange_light1">#FD814A</color>
     <color name="orange_dark1">#FC5C4C</color>
+    <color name="colorButton">#FF5722</color> <!-- Orange -->
+    <color name="colorButtonPressed">#E64A19</color> <!-- Darker Orange -->
 </resources>

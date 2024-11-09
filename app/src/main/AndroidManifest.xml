@@ -18,7 +18,7 @@
         android:theme="@style/Theme.ImageAnalyzer"
         tools:targetApi="31">
         <activity
-            android:name=".activity.DashboardActivity"
+            android:name=".activity.DetailsActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,9 +27,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.MainActivity"
-            android:exported="false">
+            android:name=".activity.DashboardActivity"
+            android:exported="true">
+
         </activity>
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="false"></activity>
     </application>
 
 </manifest>
