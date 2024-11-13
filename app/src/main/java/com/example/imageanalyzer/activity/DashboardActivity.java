@@ -27,6 +27,7 @@ import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.adapter.ImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.ml.models.YOLOv5Predictor;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -155,8 +156,11 @@ public class DashboardActivity extends AppCompatActivity {
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
         for (ImageData imageData : imageNames) {
+            if(!imageData.getImageName().contains("img5")){
+                continue;
+            }
             try{
-                YoloV5Detector objectDetector = new YoloV5Detector(this);
+                YOLOv5Predictor objectDetector = new YOLOv5Predictor(this);
                 objectDetector.detectImages(imageData);
                 System.out.println(imageData);
                 long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
