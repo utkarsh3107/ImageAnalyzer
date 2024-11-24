@@ -28,6 +28,7 @@ import com.example.imageanalyzer.adapter.ImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
+import com.example.imageanalyzer.utils.ImageDataManager;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -99,6 +100,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void loadFullGallery(){
         List<ImageData> imageNames = dbHelper.fetchImages();
+
+        ImageDataManager.getInstance().setImageDataList(imageNames);
         gallerySubHeaderText.setText(R.string.current_gallery);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager =
@@ -114,6 +117,7 @@ public class DashboardActivity extends AppCompatActivity {
         StaggeredGridLayoutManager staggeredGridLayoutManager =
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(new ImageAdapter(this, objectImages));
 
     }
@@ -182,6 +186,13 @@ public class DashboardActivity extends AppCompatActivity {
         toast.show();
     }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the data to reflect changes made in DetailsActivity
+        ImageAdapter adapter = (ImageAdapter) recyclerView.getAdapter();
+        if (adapter != null) {
+            adapter.updateImageList(ImageDataManager.getInstance().getImageDataList());
+        }
+    }
 }

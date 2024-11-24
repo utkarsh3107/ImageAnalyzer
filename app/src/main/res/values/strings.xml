@@ -7,4 +7,6 @@
     </string-array>
     <string name="current_gallery">CURRENT GALLERY</string>
     <string name="search_results">SEARCH RESULTS</string>
+    <string name="save_image_info">Save Values</string>
+    <string name="cancel_image_info">Cancel Opeartion</string>
 </resources>

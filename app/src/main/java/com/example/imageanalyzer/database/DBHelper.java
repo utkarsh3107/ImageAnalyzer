@@ -12,6 +12,7 @@ import com.example.imageanalyzer.utils.JSONMapper;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("Table Recreation","Upgrade table:  "+ TABLE_IMAGES);
+        Log.i("Table Recreation","Upgrade table:  " + TABLE_IMAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_IMAGES);
         onCreate(db);
     }
@@ -102,28 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return result;
     }
-    /*
-    public List<ImageData> fetchImageForObjectKeywords(String keyword){
-        List<ImageData> result = new ArrayList<>();
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query ="SELECT "+ COLUMN_CONTEXT +" FROM "+ TABLE_IMAGES  +" WHERE EXISTS (SELECT 1 FROM json_each(json_extract( "+ COLUMN_CONTEXT +", '$.objectsRecognition.objectsDetected')) WHERE value LIKE '%" + keyword +"%');";
-
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do{
-                int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
-                if(colIndex >= 0) {
-                    result.add(JSONMapper.toObject(cursor.getString(colIndex),ImageData.class));
-                }
-            }while(cursor.moveToNext());
-            cursor.close();
-        }
-
-        return result;
-    }
-*/
     public List<ImageData> getImageContext(String name) {
         List<ImageData> result = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -142,5 +122,22 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         return result;
     }
-}
 
+    public void updateImageContext(ImageData imageData) {
+        Log.i("Updating","Found objects" + JSONMapper.toJSON(imageData));
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CONTEXT, JSONMapper.toJSON(imageData));
+        String whereClause = COLUMN_NAME + "=?";
+        String[] whereArgs = new String[]{String.valueOf(imageData.getImageName())};
+
+        int rowsAffected = db.update(TABLE_IMAGES, values, whereClause, whereArgs);
+        Log.i("SQL Update", "Rows affected: " + rowsAffected);
+        if (rowsAffected > 0) {
+            Log.i("SQL Update", "Update successful for id: " + imageData.getImageId());
+        } else {
+            Log.e("SQL Update", "Update failed for id: " + imageData.getImageId());
+        }
+        db.close();
+    }
+}

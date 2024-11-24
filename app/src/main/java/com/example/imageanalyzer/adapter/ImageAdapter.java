@@ -78,4 +78,5 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         }
         return imageList;
     }
+
 }
