@@ -20,12 +20,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.adapter.ImageAdapter;
+import com.example.imageanalyzer.adapter.OverviewImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
+import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageDataManager;
@@ -108,6 +111,13 @@ public class DashboardActivity extends AppCompatActivity {
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(new ImageAdapter(this, imageNames));
+
+        List<ImageOverviewPair> overiewData = ImageUtils.getTopImagesForTopObjects(imageNames, 5 ,1);
+
+        RecyclerView recyclerView = findViewById(R.id.overviewImgRecycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        OverviewImageAdapter overviewAdapter = new OverviewImageAdapter(this, overiewData);
+        recyclerView.setAdapter(overviewAdapter);
     }
 
     private void searchImages(String query){

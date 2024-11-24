@@ -9,12 +9,15 @@ import android.util.Log;
 
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.utils.JSONMapper;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
@@ -39,7 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("Table Recreation","Upgrade table:  " + TABLE_IMAGES);
+        Log.i("Database","Table Recreation Upgrade table:  " + TABLE_IMAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_IMAGES);
         onCreate(db);
     }
@@ -140,4 +143,39 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
+
+    public List<ImageData> getTopCommonObjects(int limit) {
+        List<ImageData> allImages = fetchImages();
+        Map<String, List<ImageData>> objectFrequencyMap = getObjectMap(allImages);
+
+        // Below function first sorts the objectFrequencyMap to fetch all list based on the object count.
+        // Then we limit the objects based on input and flatten the list for each top object finally selecting only distinct values.
+        List<ImageData> result =  objectFrequencyMap.entrySet().stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
+                .limit(limit)
+                .flatMap(entry -> entry.getValue().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+        Log.i("Database", "Selecting Top objects: " + JSONMapper.toJSON(result));
+        return result;
+    }
+
+    private static Map<String, List<ImageData>> getObjectMap(List<ImageData> allImages) {
+        Map<String, List<ImageData>> objectFrequencyMap = new HashMap<>();
+
+        for (ImageData image : allImages) {
+            if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null) {
+                //Extract object count for eachObject
+                for (String object : image.getObjectsRecognition().getObjectsDetected()) {
+                    objectFrequencyMap.computeIfAbsent(object, k -> new ArrayList<>());
+                    Objects.requireNonNull(objectFrequencyMap.get(object)).add(image);
+                }
+            }
+        }
+
+        Log.i("Database","Total Objects Frequency: " + JSONMapper.toJSON(objectFrequencyMap));
+        return objectFrequencyMap;
+    }
+
 }

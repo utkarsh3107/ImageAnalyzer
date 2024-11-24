@@ -17,6 +17,7 @@ import com.example.imageanalyzer.beans.GPSMetadata;
 import com.example.imageanalyzer.beans.ICCProfileMetadata;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ExifMetadata;
+import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.ObjectsRecognition;
 import com.example.imageanalyzer.beans.Recognition;
 import com.example.imageanalyzer.beans.enums.ImageType;
@@ -31,7 +32,12 @@ import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ImageUtils {
 
@@ -224,6 +230,45 @@ public class ImageUtils {
 
         // Return the processed TensorImage
         return tensorImage;
+    }
+
+    public static List<ImageOverviewPair> getTopImagesForTopObjects(List<ImageData> allImages, int topObjectLimit, int imageLimitPerObject) {
+        // Step 1: Fetch all images and initialize frequency map
+        Map<String, Integer> objectFrequencyMap = new HashMap<>();
+        Map<String, List<ImageData>> objectToImagesMap = new HashMap<>();
+
+        // Step 2: Build frequency map and collect images for each object
+        for (ImageData image : allImages) {
+            if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null) {
+                for (String object : image.getObjectsRecognition().getObjectsDetected()) {
+                    // Update frequency count
+                    objectFrequencyMap.put(object, objectFrequencyMap.getOrDefault(object, 0) + 1);
+
+                    // Add image to the list associated with the object
+                    objectToImagesMap.computeIfAbsent(object, k -> new ArrayList<>());
+                    if (Objects.requireNonNull(objectToImagesMap.get(object)).size() < imageLimitPerObject) {
+                        Objects.requireNonNull(objectToImagesMap.get(object)).add(image);
+                    }
+                }
+            }
+        }
+
+        // Step 3: Sort objects by frequency and collect the top ones
+        List<ImageOverviewPair> result = new ArrayList<>();
+        objectFrequencyMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())) // Sort in descending order by frequency
+                .limit(topObjectLimit) // Limit to top `topObjectLimit` objects
+                .forEach(entry -> {
+                    String objectName = entry.getKey();
+                    List<ImageData> imagesForObject = objectToImagesMap.get(objectName);
+
+                    // Add each image with its associated object name to the result list
+                    for (ImageData image : imagesForObject) {
+                        result.add(new ImageOverviewPair(objectName, image));
+                    }
+                });
+
+        return result;
     }
 }
 

@@ -70,6 +70,20 @@
                 android:textColorHint="@color/white"
                 android:textSize="16sp" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/overviewImgRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"
+                    android:layout_marginBottom="100dp"
+                    android:clipToPadding="false"
+                    android:scrollbars="horizontal"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <TextView
                 android:id="@+id/gallerySubHeaderText"
                 android:layout_width="match_parent"
