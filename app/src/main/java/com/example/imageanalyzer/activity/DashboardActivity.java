@@ -208,12 +208,34 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent); // Update the intent for the current activity
+        handleIncomingIntent(intent);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        // Refresh the data to reflect changes made in DetailsActivity
+        Log.i("MainActivity", "Come to resume");
         ImageAdapter adapter = (ImageAdapter) recyclerView.getAdapter();
         if (adapter != null) {
             adapter.updateImageList(ImageDataManager.getInstance().getImageDataList());
         }
+        Log.i("MainActivity", "ImageAdapter found");
+        Intent intent = getIntent();
+        handleIncomingIntent(intent);
     }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("objectOverviewData")) {
+            String objectName = intent.getStringExtra("objectOverviewData");
+            if (objectName != null) {
+                Log.d("DashboardActivity", "221: Received object name: " + objectName);
+                searchEditText.setText(objectName);
+                searchEditText.setSelection(objectName.length()); // Move cursor to the end
+            }
+        }
+    }
+
 }

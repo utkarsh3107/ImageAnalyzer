@@ -16,10 +16,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.imageanalyzer.R;
+import com.example.imageanalyzer.activity.DashboardActivity;
 import com.example.imageanalyzer.activity.DetailsActivity;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
+import com.example.imageanalyzer.utils.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,16 +93,17 @@ public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivi
         }
 
         // Set the object title
-        holder.overviewObjectTitle.setText(objectName);
+        holder.overviewObjectTitle.setText(ImageUtils.getFormattedImageName(objectName));
 
         // Set click listener for the plus button
-       /* holder.overviewExpandButton.setOnClickListener(v -> {
-            Intent intent = new Intent(context, DetailsActivity.class);
-            intent.putExtra("objectName", objectData.getTitle());
+        holder.overviewExpandButton.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DashboardActivity.class);
+            intent.putExtra("objectOverviewData", objectName);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             context.startActivity(intent);
         });
 
-
+        /*
         Glide.with(context)
                 .load(imageDataList.get(1).getImagePath())
                 .placeholder(R.drawable.placeholder_image)
