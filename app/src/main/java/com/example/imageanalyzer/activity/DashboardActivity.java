@@ -1,5 +1,6 @@
 package com.example.imageanalyzer.activity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.LayoutInflater;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +52,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     private FloatingActionButton readImagesButton;
 
+    private ImageView toDashboardActivityBtn;
+
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,7 @@ public class DashboardActivity extends AppCompatActivity {
         searchEditText = findViewById(R.id.searchEditText);
         gallerySubHeaderText = findViewById(R.id.gallerySubHeaderText);
         readImagesButton = findViewById(R.id.readImagesButton);
+        toDashboardActivityBtn = findViewById(R.id.toDashboardActivityBtn);
         init();
         loadFullGallery();
     }
@@ -98,6 +103,12 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
+
+        toDashboardActivityBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, ObjectsOverviewActivity.class);
+            startActivity(intent);
+        });
+
         readImages();
     }
 
@@ -116,7 +127,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.overviewImgRecycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        OverviewImageAdapter overviewAdapter = new OverviewImageAdapter(this, overiewData);
+        OverviewImageAdapter overviewAdapter = new OverviewImageAdapter(this, overiewData, searchEditText);
         recyclerView.setAdapter(overviewAdapter);
     }
 

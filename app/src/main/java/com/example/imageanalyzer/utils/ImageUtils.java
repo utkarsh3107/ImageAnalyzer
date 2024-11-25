@@ -19,6 +19,7 @@ import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ExifMetadata;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.ObjectsRecognition;
+import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.beans.Recognition;
 import com.example.imageanalyzer.beans.enums.ImageType;
 
@@ -37,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ImageUtils {
@@ -269,6 +271,38 @@ public class ImageUtils {
                 });
 
         return result;
+    }
+
+    public static List<OverviewActivityPair> getImagesPerObjectType( List<ImageData> allImages, int limit) {
+        List<OverviewActivityPair> overviewPairs = new ArrayList<>();
+        Map<String, List<ImageData>> objectImageMap = new HashMap<>();
+
+        // Step 2: Group images by object type
+        for (ImageData imageData : allImages) {
+            if (imageData.getObjectsRecognition() != null && imageData.getObjectsRecognition().getObjectsDetected() != null) {
+                Set<String> objectsDetected = imageData.getObjectsRecognition().getObjectsDetected();
+                for (String object : objectsDetected) {
+                    objectImageMap.computeIfAbsent(object, k -> new ArrayList<>()).add(imageData);
+                }
+            }
+        }
+
+        for (Map.Entry<String, List<ImageData>> entry : objectImageMap.entrySet()) {
+            String objectName = entry.getKey();
+            List<ImageData> images = entry.getValue();
+            List<ImageData> limitedImages = images.size() > limit ? images.subList(0, limit) : images;
+
+            OverviewActivityPair overviewPair = new OverviewActivityPair();
+            overviewPair.setObjectName(objectName);
+            overviewPair.setImageList(new ArrayList<>(limitedImages));
+            overviewPairs.add(overviewPair);
+        }
+
+        return overviewPairs;
+    }
+
+    public static String getFormattedImageName(String objectName){
+        return objectName.substring(0, 1).toUpperCase() + objectName.substring(1).toLowerCase();
     }
 }
 

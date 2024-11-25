@@ -8,10 +8,10 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:background="@drawable/rounded_background"
-    tools:context=".activity.DashboardActivity">
+    tools:context=".activity.ObjectsOverviewActivity">
 
     <ScrollView
-        android:id="@+id/scrollViewDashboard"
+        android:id="@+id/scrollViewOverview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginStart="20dp"
-                android:text="Contextualize"
+                android:text="Overview"
                 style="@style/HeadingDashboard"/>
 
             <TextView
@@ -50,79 +50,32 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginStart="20dp"
-                android:text="Type the keywords you are looking for below."
+                android:layout_marginBottom="15dp"
+                android:text="A glance at all the objects found on your device."
                 style="@style/SubHeadingGeneral"/>
 
-            <EditText
-                android:id="@+id/searchEditText"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_margin="20dp"
-                android:background="@drawable/search_edt_background"
-                android:drawableStart="@drawable/search"
-                android:drawableEnd="@drawable/microphone"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:hint="Search..."
-                android:inputType="text"
-                android:padding="12dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/galleryOverviewHeaderText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="20dp"
-                android:text="TOP PICK's"
-                style="@style/SubSubHeadingDashboard"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginBottom="100dp">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/overviewImgRecycler"
+                    android:id="@+id/overviewRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:padding="8dp"
-                    android:layout_marginBottom="100dp"
-                    android:clipToPadding="false"
-                    android:scrollbars="horizontal"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/gallerySubHeaderText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="20dp"
-                android:text="CURRENT GALLERY"
-                style="@style/SubHeadingDashboard"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="8dp"
-                    android:layout_marginBottom="100dp"
                     android:clipToPadding="false"
                     android:scrollbars="vertical"/>
-
-            </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
+
     </ScrollView>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        app:layout_constraintBottom_toBottomOf="@id/scrollViewDashboard"
+        app:layout_constraintBottom_toBottomOf="@id/scrollViewOverview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -147,7 +100,7 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:contentDescription="TODO"
-                    app:srcCompat="@drawable/home_orange"
+                    app:srcCompat="@drawable/home_grey"
                     tools:layout_weight="0.1" />
 
                 <ImageView
@@ -173,16 +126,16 @@
                     app:tint="@color/white" />
 
                 <ImageView
-                    android:id="@+id/toDashboardActivityBtn"
+                    android:id="@+id/imageView5"
                     android:layout_width="0dp"
                     android:layout_height="25dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="25dp"
                     android:layout_weight="1"
                     android:contentDescription="TODO"
-                    app:srcCompat="@drawable/dashboard_grey"
+                    app:srcCompat="@drawable/dashboard_orange"
                     tools:layout_weight="0.1"
-                    tools:srcCompat="@drawable/dashboard_grey" />
+                    tools:srcCompat="@drawable/dashboard_orange" />
 
                 <ImageView
                     android:id="@+id/imageView6"
@@ -207,5 +160,4 @@
             app:maxImageSize="30dp">
         </com.google.android.material.floatingactionbutton.FloatingActionButton>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

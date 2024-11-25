@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/rounded_background"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitXY" />
 
     <!-- Top Icons Layout -->
     <RelativeLayout

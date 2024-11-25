@@ -18,6 +18,9 @@
         android:theme="@style/Theme.ImageAnalyzer"
         tools:targetApi="31">
         <activity
+            android:name=".activity.ObjectsOverviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.DetailsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan|stateHidden">

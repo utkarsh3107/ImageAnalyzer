@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.activity.DetailsActivity;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
+import com.example.imageanalyzer.utils.ImageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +29,12 @@ public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdap
 
     private List<ImageOverviewPair> imageList;
     private Context context;
+    private EditText searchEditText;
 
-
-    public OverviewImageAdapter(Context context, List<ImageOverviewPair> imageList) {
+    public OverviewImageAdapter(Context context, List<ImageOverviewPair> imageList, EditText searchEditText) {
         this.context = context;
         this.imageList = imageList;
+        this.searchEditText = searchEditText;
     }
 
     public static class OverviewImageHolder extends RecyclerView.ViewHolder {
@@ -63,12 +66,20 @@ public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdap
         Glide.with(context)
                 .load(imageUrl)
                 .into(holder.imageView);
-        Objects.requireNonNull(holder).textView.setText(objectName.substring(0, 1).toUpperCase() + objectName.substring(1).toLowerCase());
+        Objects.requireNonNull(holder).textView.setText(ImageUtils.getFormattedImageName(objectName));
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DetailsActivity.class);
             intent.putExtra("overviewObject", object.getImageData());
             holder.itemView.getContext().startActivity(intent);
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            // Set the searchEditText with the selected object's name
+            searchEditText.setText(objectName);
+
+            // (Optional) Place the cursor at the end of the text
+            searchEditText.setSelection(searchEditText.getText().length());
         });
     }
 
