@@ -54,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
                 android.animation.PropertyValuesHolder.ofFloat("scaleY", 1.0f, 0.0f),
                 android.animation.PropertyValuesHolder.ofFloat("alpha", 1.0f, 0.0f)
         );
-        logoFlipZoomOut.setDuration(600);  // 0.8 seconds to complete the flip, scale, and fade-out
+        logoFlipZoomOut.setDuration(600);
         logoFlipZoomOut.setInterpolator(new AccelerateDecelerateInterpolator());
 
         ObjectAnimator textFlipZoomOut = ObjectAnimator.ofPropertyValuesHolder(
@@ -66,7 +66,6 @@ public class SplashActivity extends AppCompatActivity {
         );
         textFlipZoomOut.setDuration(600);
         textFlipZoomOut.setInterpolator(new AccelerateDecelerateInterpolator());
-
 
         AnimatorSet logoAndTextSet = new AnimatorSet();
         logoAndTextSet.playTogether(logoFlipZoomOut, textFlipZoomOut);
