@@ -41,6 +41,8 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.sqlite)
     implementation(libs.exifinterface)
+    implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation ("org.tensorflow:tensorflow-lite:2.14.0")
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.14.0")
     implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
