@@ -52,7 +52,21 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_NAME, name);
         values.put(COLUMN_CONTEXT, JSONMapper.toJSON(imageData));
-        db.insertWithOnConflict(TABLE_IMAGES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+
+        long rowId = db.insertWithOnConflict(TABLE_IMAGES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+
+        // If rowId is -1, that means a conflict occurred and no row was inserted
+        if (rowId == -1) {
+            // Update COLUMN_CONTEXT instead
+            ContentValues updateValues = new ContentValues();
+            updateValues.put(COLUMN_CONTEXT, JSONMapper.toJSON(imageData));
+            String whereClause = COLUMN_NAME + "=?";
+            String[] whereArgs = new String[]{name};
+
+            int rowsAffected = db.update(TABLE_IMAGES, updateValues, whereClause, whereArgs);
+            Log.i("SQL Update", "Rows affected: " + rowsAffected);
+        }
+
         db.close();
     }
 
@@ -73,7 +87,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         if(imageObj.getObjectsRecognition().getObjectsDetected() != null && !imageObj.getObjectsRecognition().getObjectsDetected().isEmpty()){
                             Set<String> objects = imageObj.getObjectsRecognition().getObjectsDetected();
                             Log.i("Checking","Found objects" + JSONMapper.toJSON(objects));
-                            if(objects.contains(keyword)){
+                            if(objects.contains(keyword.toLowerCase())){
                                 result.add(imageObj);
                             }
                         }
@@ -142,23 +156,6 @@ public class DBHelper extends SQLiteOpenHelper {
             Log.e("SQL Update", "Update failed for id: " + imageData.getImageId());
         }
         db.close();
-    }
-
-    public List<ImageData> getTopCommonObjects(int limit) {
-        List<ImageData> allImages = fetchImages();
-        Map<String, List<ImageData>> objectFrequencyMap = getObjectMap(allImages);
-
-        // Below function first sorts the objectFrequencyMap to fetch all list based on the object count.
-        // Then we limit the objects based on input and flatten the list for each top object finally selecting only distinct values.
-        List<ImageData> result =  objectFrequencyMap.entrySet().stream()
-                .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
-                .limit(limit)
-                .flatMap(entry -> entry.getValue().stream())
-                .distinct()
-                .collect(Collectors.toList());
-
-        Log.i("Database", "Selecting Top objects: " + JSONMapper.toJSON(result));
-        return result;
     }
 
     private static Map<String, List<ImageData>> getObjectMap(List<ImageData> allImages) {

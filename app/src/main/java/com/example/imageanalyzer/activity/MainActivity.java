@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (ImageData imageData : imageNames) {
             try{
-                YoloV5Detector objectDetector = new YoloV5Detector(this);
+                YoloV5Detector objectDetector = new YoloV5Detector(this, "yolov5s-fp16.tflite", "coco_label.txt", 6300, 85 ,320);
                 objectDetector.detectImages(imageData);
                 System.out.println(imageData);
                 long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());

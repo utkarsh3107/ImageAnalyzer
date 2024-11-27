@@ -211,7 +211,7 @@ public class DetailsActivity extends AppCompatActivity {
             imageDate.setText(String.format("%d", image.getImageDateTaken()));
         }
 
-        if (image.getObjectsRecognition() != null && !image.getObjectsRecognition().getObjectsDetected().isEmpty()) {
+        if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null && !image.getObjectsRecognition().getObjectsDetected().isEmpty()) {
             objectsIdentified.setText(joinStrings(image.getObjectsRecognition().getObjectsDetected(), ", "));
         }
     }

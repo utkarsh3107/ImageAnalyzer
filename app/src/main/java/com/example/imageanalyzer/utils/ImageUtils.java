@@ -189,8 +189,10 @@ public class ImageUtils {
         }
 
         for(Recognition eachRecognition : objectsFound){
-            imageData.getObjectsRecognition().addObject(eachRecognition.getLabelName());
+            imageData.getObjectsRecognition().addObject(eachRecognition.getLabelName().toLowerCase());
         }
+
+        Log.i("ImageUtils", "Found object: " + objectsFound + " for image: " + imageData.getImageName());
     }
 
     public static Bitmap createEmptyBitmap(int displayImageSize, int displayImageSize1,int color) {
@@ -270,6 +272,7 @@ public class ImageUtils {
                     }
                 });
 
+        Log.i("ImageUtils", "Get images for dashboard overview: " + JSONMapper.toJSON(result));
         return result;
     }
 
@@ -277,7 +280,6 @@ public class ImageUtils {
         List<OverviewActivityPair> overviewPairs = new ArrayList<>();
         Map<String, List<ImageData>> objectImageMap = new HashMap<>();
 
-        // Step 2: Group images by object type
         for (ImageData imageData : allImages) {
             if (imageData.getObjectsRecognition() != null && imageData.getObjectsRecognition().getObjectsDetected() != null) {
                 Set<String> objectsDetected = imageData.getObjectsRecognition().getObjectsDetected();
@@ -298,6 +300,7 @@ public class ImageUtils {
             overviewPairs.add(overviewPair);
         }
 
+        Log.i("ImageUtils", "Get images by object type: " + JSONMapper.toJSON(overviewPairs));
         return overviewPairs;
     }
 

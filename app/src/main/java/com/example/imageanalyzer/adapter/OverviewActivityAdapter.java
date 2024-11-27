@@ -3,6 +3,7 @@ package com.example.imageanalyzer.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.utils.ImageUtils;
+import com.example.imageanalyzer.utils.JSONMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,8 @@ public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivi
         String objectName = object.getObjectName();
         List<ImageData> imageDataList = object.getImageList();
 
+        Log.i("OverviewActivityAdapter", "Object name "+ objectName+ " has image count: " + imageDataList.size());
+
         if(!imageDataList.isEmpty()){
             Glide.with(context)
                     .load(imageDataList.get(0).getImagePath())
@@ -102,20 +106,6 @@ public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivi
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             context.startActivity(intent);
         });
-
-        /*
-        Glide.with(context)
-                .load(imageDataList.get(1).getImagePath())
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.placeholder_image)
-                .into(holder.rightTopImageView);
-
-        Glide.with(context)
-                .load(imageDataList.get(1).getImagePath())
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.placeholder_image)
-                .into(holder.rightTopImageView);
-                */
     }
 
     @Override

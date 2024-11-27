@@ -35,6 +35,7 @@ import com.example.imageanalyzer.database.DBHelper;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageDataManager;
 import com.example.imageanalyzer.utils.ImageUtils;
+import com.example.imageanalyzer.utils.JSONMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -102,7 +103,6 @@ public class DashboardActivity extends AppCompatActivity {
 
             }
         });
-
 
         toDashboardActivityBtn.setOnClickListener(v -> {
             Intent intent = new Intent(DashboardActivity.this, ObjectsOverviewActivity.class);
@@ -176,23 +176,38 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void readImagesFromGalleryAndStoreInDatabase() {
-
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
-        for (ImageData imageData : imageNames) {
-            try{
-                YoloV5Detector objectDetector = new YoloV5Detector(this);
+        try {
+            YoloV5Detector objectDetector = new YoloV5Detector(this, "yolov5s-fp16.tflite", "coco_label.txt", 6300, 85, 320);
+            for (ImageData imageData : imageNames) {
+                Log.i("DashboardActivity", "Finding COCO images");
                 objectDetector.detectImages(imageData);
-                System.out.println(imageData);
-                long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
-                if (imageSize != -1) {
-                    dbHelper.addImage(imageData.getImageName(), imageData);
-                }
-            }catch(Exception ex){
-                Log.i("MainActivity", "Got exception: " + ex);
             }
-
+        } catch (Exception ex) {
+            Log.i("DashboardActivity", "Got exception: " + ex);
         }
+
+        try {
+            YoloV5Detector objectDetector = new YoloV5Detector(this, "iitj_yolov5s_320.tflite", "iitj_classes.txt", 6300, 41, 320);
+
+            for (ImageData imageData : imageNames) {
+                Log.i("DashboardActivity", "Finding IITJ images");
+                objectDetector.detectImages(imageData);
+            }
+        } catch (Exception ex) {
+            Log.i("DashboardActivity", "Got exception: " + ex);
+        }
+
+        for (ImageData imageData : imageNames) {
+            long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
+            if (imageSize != -1) {
+                Log.i("DashboardActivity", "Data collected for image: " + JSONMapper.toJSON(imageData));
+                dbHelper.addImage(imageData.getImageName(), imageData);
+            }
+        }
+
+        loadFullGallery();
 
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) findViewById(R.id.custom_toast_root));

@@ -26,20 +26,24 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 public class YoloV5Detector {
-    private final Size INPNUT_SIZE = new Size(320, 320);
-    private final int[] OUTPUT_SIZE = new int[]{1, 6300, 85};
+
+    private Size INPNUT_SIZE;
+    private int[] OUTPUT_SIZE;
     private Interpreter tflite;
     private List<String> associatedAxisLabels;
     private final Context context;
-    public YoloV5Detector(Context context){
+    public YoloV5Detector(Context context, String model, String classes, int classSizeDim, int totalClasses, int inputSize){
         Log.d("ObjectDetector", "Loading yolo_v5 model");
+        INPNUT_SIZE = new Size(inputSize, inputSize);
+        OUTPUT_SIZE = new int[]{1, classSizeDim, totalClasses};
         this.context = context;
         Interpreter.Options options = new Interpreter.Options();
         try{
-            ByteBuffer tfliteModel = FileUtil.loadMappedFile(context, "yolov5s-fp16.tflite");
+            ByteBuffer tfliteModel = FileUtil.loadMappedFile(context, model);
             tflite = new Interpreter(tfliteModel, options);
-            String LABEL_FILE = "coco_label.txt";
+            String LABEL_FILE = classes;
             associatedAxisLabels = FileUtil.loadLabels(context, LABEL_FILE);
+
             Log.i("ObjectDetector", "Loading yolo_v5 model successful");
         }catch(Exception ex){
             Log.i("ObjectDetector", "Error initialzing class ", ex);
