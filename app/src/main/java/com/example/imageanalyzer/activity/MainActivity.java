@@ -27,8 +27,6 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.database.DBHelper;
-import com.example.imageanalyzer.ml.models.OCRDetector;
-import com.example.imageanalyzer.ml.models.OCRModelExecutor;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageUtils;
 
@@ -100,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "Text Identification":
                 String image = "/storage/emulated/0/Pictures/Image1.png";
-                OCRDetector detector = new OCRDetector(this);
-                imageView.setImageBitmap(detector.detect(image));
+                //OCRDetector detector = new OCRDetector(this);
+                //imageView.setImageBitmap(detector.detect(image));
                 //OCRModelExecutor detector = new OCRModelExecutor(this,false);
                 //imageSizeTextView.setText(detector.execute(image).toString());
                 //displaySelectedImages(null);

@@ -39,6 +39,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+
     implementation(libs.sqlite)
     implementation(libs.exifinterface)
     implementation("androidx.vectordrawable:vectordrawable-animated:1.1.0")
@@ -49,6 +51,10 @@ dependencies {
     implementation ("org.tensorflow:tensorflow-lite-metadata:0.4.4")
     implementation ("com.quickbirdstudios:opencv:4.5.3.0")
     implementation ("org.tensorflow:tensorflow-lite-select-tf-ops:2.11.0")
+    //implementation("cz.adaptech:tesseract4android:2.1.1")
+    implementation("cz.adaptech.tesseract4android:tesseract4android:4.8.0")
+    implementation ("com.google.android.gms:play-services-mlkit-text-recognition:19.0.1")
+    //implementation("com.rmtheis:tess-two:9.1.0")
     //implementation(libs.tensorflow.lite)
     //implementation(libs.tensorflow.lite.support)
     //implementation(libs.tensorflow.lite.metadata)

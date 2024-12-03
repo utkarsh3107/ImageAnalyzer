@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -32,11 +33,15 @@ import com.example.imageanalyzer.adapter.OverviewImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.ml.models.TesseractTextDetection;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
+import com.example.imageanalyzer.service.OcrViewModel;
 import com.example.imageanalyzer.utils.ImageDataManager;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.example.imageanalyzer.utils.JSONMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.opencv.android.OpenCVLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +53,8 @@ public class DashboardActivity extends AppCompatActivity {
     private TextView gallerySubHeaderText;
 
     private DBHelper dbHelper;
+
+    private TesseractTextDetection tessTxtDetection;
 
     private RecyclerView recyclerView;
 
@@ -68,7 +75,14 @@ public class DashboardActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
+        if (!OpenCVLoader.initDebug()) {
+            Log.e("OpenCV", "OpenCV initialization failed!");
+        } else {
+            Log.d("OpenCV", "OpenCV initialized successfully!");
+        }
+
         dbHelper = new DBHelper(this);
+        tessTxtDetection = new TesseractTextDetection(this);
         recyclerView = findViewById(R.id.recyclerView);
         searchEditText = findViewById(R.id.searchEditText);
         gallerySubHeaderText = findViewById(R.id.gallerySubHeaderText);
@@ -110,6 +124,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         readImages();
+        tessTxtDetection.copyTessDataFiles();
     }
 
     private void loadFullGallery(){
@@ -178,6 +193,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void readImagesFromGalleryAndStoreInDatabase() {
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
+        /*
         try {
             YoloV5Detector objectDetector = new YoloV5Detector(this, "yolov5s-fp16.tflite", "coco_label.txt", 6300, 85, 320);
             for (ImageData imageData : imageNames) {
@@ -199,6 +215,45 @@ public class DashboardActivity extends AppCompatActivity {
             Log.i("DashboardActivity", "Got exception: " + ex);
         }
 
+        try{
+            OcrViewModel ocrViewModel = new ViewModelProvider(this).get(OcrViewModel.class);
+            ocrViewModel.getCurrentList().observe(this, result -> {
+                // Update UI with OCR results
+                Log.d("OCR Results", result.toString());
+            });
+
+            for (ImageData imageData : imageNames) {
+                if(imageData.getImageName().contains("word") || imageData.getImageName().contains("Image")){
+                    Log.i("DashboardActivity", "Finding OCR images for image: " + imageData.getImageName());
+                    ocrViewModel.processImage(imageData.getImagePath());
+                }
+            }
+        }catch(Exception ex){
+            Log.i("DashboardActivity", "Got exception: " + ex);
+        }
+        */
+
+        try{
+            for (ImageData imageData : imageNames) {
+                if(imageData.getImageName().contains("word") || imageData.getImageName().contains("Image") || imageData.getImageName().contains("three")){
+                    //Log.i("DashboardActivity", "Finding OCR images for image: " + imageData.getImageName());
+                    this.tessTxtDetection.performOCR(imageData);
+                }
+                /*
+                if(imageData.getImageName().contains("three_words_quotes_c2")){
+                    //Log.i("DashboardActivity", "Finding OCR images for image: " + imageData.getImageName());
+                    ImageView imageView = findViewById(R.id.testImg);
+                    imageView.setImageBitmap(this.tessTxtDetection.preProcessImage1(imageData));
+
+                    this.tessTxtDetection.performOCR(imageData);
+                }
+                 */
+            }
+
+        }catch(Exception ex){
+            Log.i("DashboardActivity","OCR Failed");
+        }
+        /*
         for (ImageData imageData : imageNames) {
             long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
             if (imageSize != -1) {
@@ -206,6 +261,7 @@ public class DashboardActivity extends AppCompatActivity {
                 dbHelper.addImage(imageData.getImageName(), imageData);
             }
         }
+       */
 
         loadFullGallery();
 
