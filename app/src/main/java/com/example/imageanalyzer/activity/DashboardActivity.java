@@ -32,6 +32,7 @@ import com.example.imageanalyzer.adapter.OverviewImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.ml.models.TesseractTextDetection;
 import com.example.imageanalyzer.ml.models.YoloV5Detector;
 import com.example.imageanalyzer.utils.ImageDataManager;
 import com.example.imageanalyzer.utils.ImageUtils;
@@ -197,6 +198,18 @@ public class DashboardActivity extends AppCompatActivity {
             }
         } catch (Exception ex) {
             Log.i("DashboardActivity", "Got exception: " + ex);
+        }
+
+        try{
+            TesseractTextDetection tessTxtDetection = new TesseractTextDetection(this);
+            tessTxtDetection.copyTessDataFiles();
+
+            for (ImageData imageData : imageNames) {
+                Log.i("DashboardActivity", "Finding IITJ images text");
+                tessTxtDetection.performOCR(imageData);
+            }
+        }catch(Exception ex){
+            Log.i("DashboardActivity", "Got exception in OCR: " + ex);
         }
 
         for (ImageData imageData : imageNames) {

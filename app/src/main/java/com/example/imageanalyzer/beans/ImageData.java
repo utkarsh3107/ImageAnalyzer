@@ -16,6 +16,9 @@ public class ImageData implements Serializable {
     private long imageDateTaken;
 
     private ObjectsRecognition objectsRecognition;
+
+    private TextDetected imgText;
+
     private ExifMetadata exifMetadata;
 
     private GPSMetadata gpsMetadata;
@@ -90,6 +93,14 @@ public class ImageData implements Serializable {
     public void setObjectsRecognition(ObjectsRecognition objectsRecognition) {
         this.objectsRecognition = objectsRecognition;
     }
+    public TextDetected getImgText() {
+        return imgText;
+    }
+
+    public void setImgText(TextDetected imgText) {
+        this.imgText = imgText;
+    }
+
     @Override
     public String toString() {
         return "ImageData{" +
@@ -102,6 +113,7 @@ public class ImageData implements Serializable {
                 ", imageHeight=" + imageHeight +
                 ", imageDateTaken=" + imageDateTaken +
                 ", objectsRecognition=" + objectsRecognition +
+                ", imgText=" + imgText +
                 ", exifMetadata=" + exifMetadata +
                 ", gpsMetadata=" + gpsMetadata +
                 '}';

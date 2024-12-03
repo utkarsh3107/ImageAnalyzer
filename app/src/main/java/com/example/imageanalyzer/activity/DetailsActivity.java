@@ -214,6 +214,10 @@ public class DetailsActivity extends AppCompatActivity {
         if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null && !image.getObjectsRecognition().getObjectsDetected().isEmpty()) {
             objectsIdentified.setText(joinStrings(image.getObjectsRecognition().getObjectsDetected(), ", "));
         }
+
+        if(image.getImgText() != null && image.getImgText().getImageText() != null && !image.getImgText().getImageText().equals("")){
+            textIdentified.setText(image.getImgText().getImageText());
+        }
     }
 
     private String joinStrings(Set<String> set, String delimiter) {

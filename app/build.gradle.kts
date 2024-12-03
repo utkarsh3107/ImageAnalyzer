@@ -49,6 +49,7 @@ dependencies {
     implementation ("org.tensorflow:tensorflow-lite-metadata:0.4.4")
     implementation ("com.quickbirdstudios:opencv:4.5.3.0")
     implementation ("org.tensorflow:tensorflow-lite-select-tf-ops:2.11.0")
+    implementation("cz.adaptech.tesseract4android:tesseract4android:4.8.0")
     //implementation(libs.tensorflow.lite)
     //implementation(libs.tensorflow.lite.support)
     //implementation(libs.tensorflow.lite.metadata)
