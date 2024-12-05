@@ -145,7 +145,33 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void readImages(){
-        readImagesButton.setOnClickListener(v -> checkPermissionAndReadImages());
+        readImagesButton.setOnClickListener(v -> checkPermissionAndReadImagesV2());
+    }
+
+    private void checkPermissionAndReadImagesV2() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Request the permission for Android 13+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_MEDIA_IMAGES},
+                        REQUEST_READ_EXTERNAL_STORAGE);
+            } else {
+                // Permission is already granted, proceed to read images
+                readImagesFromGalleryAndStoreInDatabase();
+            }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Request the permission for Android 12 and below
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_READ_EXTERNAL_STORAGE);
+            } else {
+                // Permission is already granted, proceed to read images
+                readImagesFromGalleryAndStoreInDatabase();
+            }
+        }
     }
 
     private void checkPermissionAndReadImages() {
@@ -158,6 +184,21 @@ public class DashboardActivity extends AppCompatActivity {
         } else {
             // Permission is already granted, proceed to read images
             readImagesFromGalleryAndStoreInDatabase();
+        }
+    }
+
+
+    public void onRequestPermissionsResult1(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed to read images
+                readImagesFromGalleryAndStoreInDatabase();
+            } else {
+                // Permission denied, show a message or handle accordingly
+                Toast.makeText(this, "Permission denied. Cannot read images.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -176,9 +217,11 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
+
     private void readImagesFromGalleryAndStoreInDatabase() {
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
+        /*
         try {
             YoloV5Detector objectDetector = new YoloV5Detector(this, "yolov5s-fp16.tflite", "coco_label.txt", 6300, 85, 320);
             for (ImageData imageData : imageNames) {
@@ -188,7 +231,7 @@ public class DashboardActivity extends AppCompatActivity {
         } catch (Exception ex) {
             Log.i("DashboardActivity", "Got exception: " + ex);
         }
-
+        */
         try {
             YoloV5Detector objectDetector = new YoloV5Detector(this, "iitj_yolov5s_320.tflite", "iitj_classes.txt", 6300, 41, 320);
 
