@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.imageanalyzer.beans.ImageData;
+import com.example.imageanalyzer.beans.OverviewActivityPair;
+import com.example.imageanalyzer.utils.Constants;
+import com.example.imageanalyzer.utils.ImageUtils;
 import com.example.imageanalyzer.utils.JSONMapper;
 
 import java.util.ArrayList;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String TABLE_IMAGES = "images";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_NAME = "name";
@@ -42,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("Database","Table Recreation Upgrade table:  " + TABLE_IMAGES);
+        Log.i(Constants.DBHELPER_CLASS,"Table Recreation Upgrade table:  " + TABLE_IMAGES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_IMAGES);
         onCreate(db);
     }
@@ -64,7 +67,7 @@ public class DBHelper extends SQLiteOpenHelper {
             String[] whereArgs = new String[]{name};
 
             int rowsAffected = db.update(TABLE_IMAGES, updateValues, whereClause, whereArgs);
-            Log.i("SQL Update", "Rows affected: " + rowsAffected);
+            Log.i(Constants.DBHELPER_CLASS, "Rows affected: " + rowsAffected);
         }
 
         db.close();
@@ -76,17 +79,17 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
-        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        Log.i(Constants.DBHELPER_CLASS, "DB Image Size: " + cursor.getCount());
         if (cursor.moveToFirst()) {
             do {
                 int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
                 if(colIndex >= 0) {
                     ImageData imageObj = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
-                    Log.i("Database", "DB imageObj: " + JSONMapper.toJSON(imageObj));
+                    Log.i(Constants.DBHELPER_CLASS, "DB imageObj: " + JSONMapper.toJSON(imageObj));
                     if(imageObj.getObjectsRecognition() != null ){
                         if(imageObj.getObjectsRecognition().getObjectsDetected() != null && !imageObj.getObjectsRecognition().getObjectsDetected().isEmpty()){
                             Set<String> objects = imageObj.getObjectsRecognition().getObjectsDetected();
-                            Log.i("Checking","Found objects" + JSONMapper.toJSON(objects));
+                            Log.i(Constants.DBHELPER_CLASS,"Found objects" + JSONMapper.toJSON(objects));
                             if(objects.contains(keyword.toLowerCase())){
                                 result.add(imageObj);
                             }
@@ -106,7 +109,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(query, null);
-        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        Log.i(Constants.DBHELPER_CLASS, "fetchImages DB Image Size: " + cursor.getCount());
         if (cursor.moveToFirst()) {
             do {
                 int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
@@ -126,7 +129,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_IMAGES, new String[]{COLUMN_CONTEXT},
                 COLUMN_NAME + "=?", new String[]{name}, null, null, null);
-        Log.i("Database", "DB Image Size: " + cursor.getCount());
+        Log.i(Constants.DBHELPER_CLASS, "getImageContext DB Image Size: " + cursor.getCount());
         if (cursor.moveToFirst()) {
             do{
                 int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
@@ -141,7 +144,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void updateImageContext(ImageData imageData) {
-        Log.i("Updating","Found objects" + JSONMapper.toJSON(imageData));
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_CONTEXT, JSONMapper.toJSON(imageData));
@@ -149,30 +151,18 @@ public class DBHelper extends SQLiteOpenHelper {
         String[] whereArgs = new String[]{String.valueOf(imageData.getImageName())};
 
         int rowsAffected = db.update(TABLE_IMAGES, values, whereClause, whereArgs);
-        Log.i("SQL Update", "Rows affected: " + rowsAffected);
+        Log.i(Constants.DBHELPER_CLASS, "updateImageContext Rows affected: " + rowsAffected);
         if (rowsAffected > 0) {
-            Log.i("SQL Update", "Update successful for id: " + imageData.getImageId());
+            Log.i(Constants.DBHELPER_CLASS, "updateImageContext Update successful for id: " + imageData.getImageId());
         } else {
-            Log.e("SQL Update", "Update failed for id: " + imageData.getImageId());
+            Log.e(Constants.DBHELPER_CLASS, "updateImageContext Update failed for id: " + imageData.getImageId());
         }
         db.close();
     }
 
-    private static Map<String, List<ImageData>> getObjectMap(List<ImageData> allImages) {
-        Map<String, List<ImageData>> objectFrequencyMap = new HashMap<>();
-
-        for (ImageData image : allImages) {
-            if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null) {
-                //Extract object count for eachObject
-                for (String object : image.getObjectsRecognition().getObjectsDetected()) {
-                    objectFrequencyMap.computeIfAbsent(object, k -> new ArrayList<>());
-                    Objects.requireNonNull(objectFrequencyMap.get(object)).add(image);
-                }
-            }
-        }
-
-        Log.i("Database","Total Objects Frequency: " + JSONMapper.toJSON(objectFrequencyMap));
-        return objectFrequencyMap;
+    public List<OverviewActivityPair> fetchImage(int objectLimit, int imageLimit){
+        return ImageUtils.getObjectsForScreens(fetchImages(), objectLimit , imageLimit);
     }
+
 
 }

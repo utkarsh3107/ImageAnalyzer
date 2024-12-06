@@ -16,22 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.activity.DetailsActivity;
-import com.example.imageanalyzer.beans.ImageData;
-import com.example.imageanalyzer.beans.ImageOverviewPair;
+import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.utils.ImageUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdapter.OverviewImageHolder>{
 
-    private List<ImageOverviewPair> imageList;
-    private Context context;
-    private EditText searchEditText;
+    private final List<OverviewActivityPair> imageList;
+    private final Context context;
+    private final EditText searchEditText;
 
-    public OverviewImageAdapter(Context context, List<ImageOverviewPair> imageList, EditText searchEditText) {
+    public OverviewImageAdapter(Context context, List<OverviewActivityPair> imageList, EditText searchEditText) {
         this.context = context;
         this.imageList = imageList;
         this.searchEditText = searchEditText;
@@ -58,11 +55,10 @@ public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdap
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull OverviewImageAdapter.OverviewImageHolder holder, int position) {
-        ImageOverviewPair object = imageList.get(position);
-        String imageUrl = object.getImageData().getImagePath();
+        OverviewActivityPair object = imageList.get(position);
+        String imageUrl = object.getImageList().get(0).getImagePath();
         String objectName = object.getObjectName();
 
-        // Load image using Glide or other image loading library
         Glide.with(context)
                 .load(imageUrl)
                 .into(holder.imageView);
@@ -70,15 +66,12 @@ public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdap
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(holder.itemView.getContext(), DetailsActivity.class);
-            intent.putExtra("overviewObject", object.getImageData());
+            intent.putExtra("overviewObject", object.getImageList().get(0).getImagePath());
             holder.itemView.getContext().startActivity(intent);
         });
 
         holder.itemView.setOnClickListener(v -> {
-            // Set the searchEditText with the selected object's name
             searchEditText.setText(objectName);
-
-            // (Optional) Place the cursor at the end of the text
             searchEditText.setSelection(searchEditText.getText().length());
         });
     }
@@ -86,20 +79,6 @@ public class OverviewImageAdapter extends RecyclerView.Adapter<OverviewImageAdap
     @Override
     public int getItemCount() {
         return imageList.size();
-    }
-
-    public void updateImageList(List<ImageOverviewPair> newImageList) {
-        this.imageList = newImageList;
-        notifyDataSetChanged();
-    }
-
-
-    public List<String> convertObjToURL(){
-        List<String> imageList = new ArrayList<>();
-        for(ImageOverviewPair eachImage: this.imageList){
-            imageList.add(eachImage.getImageData().getImagePath());
-        }
-        return imageList;
     }
 
 }

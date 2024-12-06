@@ -21,10 +21,6 @@ import com.example.imageanalyzer.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private ImageView logoImageView;
-
-    private TextView logoTextView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +32,8 @@ public class SplashActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        logoImageView = findViewById(R.id.logoImageView);
-        logoTextView = findViewById(R.id.logoTextView);
+        ImageView logoImageView = findViewById(R.id.logoImageView);
+        TextView logoTextView = findViewById(R.id.logoTextView);
 
         ObjectAnimator rotateLeftToRight = ObjectAnimator.ofFloat(logoImageView, "rotationY", 0f, 360f);
         rotateLeftToRight.setDuration(800);
@@ -78,7 +74,7 @@ public class SplashActivity extends AppCompatActivity {
         animatorSet.addListener(new android.animation.Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(android.animation.Animator animation) {
-
+                //Do Nothing
             }
 
             @Override
@@ -90,10 +86,12 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationCancel(android.animation.Animator animation) {
+                //Do Nothing
             }
 
             @Override
             public void onAnimationRepeat(android.animation.Animator animation) {
+                //Do Nothing
             }
         });
 

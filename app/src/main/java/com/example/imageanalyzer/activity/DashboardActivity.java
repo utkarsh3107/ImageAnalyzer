@@ -6,15 +6,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -30,16 +25,18 @@ import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.adapter.ImageAdapter;
 import com.example.imageanalyzer.adapter.OverviewImageAdapter;
 import com.example.imageanalyzer.beans.ImageData;
-import com.example.imageanalyzer.beans.ImageOverviewPair;
+import com.example.imageanalyzer.beans.OverviewActivityPair;
+import com.example.imageanalyzer.beans.enums.ModelTypes;
 import com.example.imageanalyzer.database.DBHelper;
-import com.example.imageanalyzer.ml.models.TesseractTextDetection;
-import com.example.imageanalyzer.ml.models.YoloV5Detector;
+import com.example.imageanalyzer.service.CustomToast;
+import com.example.imageanalyzer.service.MLModelHelper;
+import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageDataManager;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.example.imageanalyzer.utils.JSONMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -56,7 +53,6 @@ public class DashboardActivity extends AppCompatActivity {
 
     private ImageView toDashboardActivityBtn;
 
-    private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +60,6 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-        // Optional: if you need to hide the status bar
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
@@ -83,7 +77,7 @@ public class DashboardActivity extends AppCompatActivity {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No action needed
+                // No action required for anything before this operation
             }
 
             @Override
@@ -94,14 +88,14 @@ public class DashboardActivity extends AppCompatActivity {
                     // If the search box is cleared, load the full gallery again
                     loadFullGallery();
                 } else {
-                    // Trigger a backend search for each character typed
+                    // Trigger a backend search for each character entered by the user.
                     searchImages(query);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                // No action required for anything after this operation
             }
         });
 
@@ -110,7 +104,7 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        readImages();
+        readImagesButton.setOnClickListener(v -> checkPermissionAndReadingGallery());
     }
 
     private void loadFullGallery(){
@@ -124,11 +118,11 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(new ImageAdapter(this, imageNames));
 
-        List<ImageOverviewPair> overiewData = ImageUtils.getTopImagesForTopObjects(imageNames, 5 ,1);
+        List<OverviewActivityPair> overviewData = ImageUtils.getObjectsForScreens(imageNames, 5 ,1);
 
         RecyclerView recyclerView = findViewById(R.id.overviewImgRecycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        OverviewImageAdapter overviewAdapter = new OverviewImageAdapter(this, overiewData, searchEditText);
+        OverviewImageAdapter overviewAdapter = new OverviewImageAdapter(this, overviewData, searchEditText);
         recyclerView.setAdapter(overviewAdapter);
     }
 
@@ -141,63 +135,30 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(new ImageAdapter(this, objectImages));
-
     }
 
-    private void readImages(){
-        readImagesButton.setOnClickListener(v -> checkPermissionAndReadImagesV2());
-    }
-
-    private void checkPermissionAndReadImagesV2() {
+    private void checkPermissionAndReadingGallery() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)
                     != PackageManager.PERMISSION_GRANTED) {
-                // Request the permission for Android 13+
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Requesting permission for Android 13+");
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.READ_MEDIA_IMAGES},
-                        REQUEST_READ_EXTERNAL_STORAGE);
+                        Constants.REQUEST_READ_EXTERNAL_STORAGE);
             } else {
-                // Permission is already granted, proceed to read images
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Permission granted already for Android 13+, reading gallery");
                 readImagesFromGalleryAndStoreInDatabase();
             }
         } else {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
-                // Request the permission for Android 12 and below
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Requesting permission for Android 12 and below");
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_READ_EXTERNAL_STORAGE);
+                        Constants.REQUEST_READ_EXTERNAL_STORAGE);
             } else {
-                // Permission is already granted, proceed to read images
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Permission granted already for Android 12 or less, reading gallery");
                 readImagesFromGalleryAndStoreInDatabase();
-            }
-        }
-    }
-
-    private void checkPermissionAndReadImages() {
-        if (ContextCompat.checkSelfPermission(this, "android.permission.READ_EXTERNAL_STORAGE")
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted, request it
-            ActivityCompat.requestPermissions(this,
-                    new String[]{"android.permission.READ_EXTERNAL_STORAGE"},
-                    REQUEST_READ_EXTERNAL_STORAGE);
-        } else {
-            // Permission is already granted, proceed to read images
-            readImagesFromGalleryAndStoreInDatabase();
-        }
-    }
-
-
-    public void onRequestPermissionsResult1(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, proceed to read images
-                readImagesFromGalleryAndStoreInDatabase();
-            } else {
-                // Permission denied, show a message or handle accordingly
-                Toast.makeText(this, "Permission denied. Cannot read images.", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -206,13 +167,11 @@ public class DashboardActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
+        if (requestCode == Constants.REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, proceed to read images
                 readImagesFromGalleryAndStoreInDatabase();
             } else {
-                // Permission denied, show a message or handle accordingly
-                Toast.makeText(this, "Permission denied. Cannot read images.", Toast.LENGTH_SHORT).show();
+                CustomToast.makeText(this, "Permission denied. Cannot read images.").show();
             }
         }
     }
@@ -221,61 +180,19 @@ public class DashboardActivity extends AppCompatActivity {
     private void readImagesFromGalleryAndStoreInDatabase() {
         List<ImageData> imageNames = ImageUtils.getAllImageNames(this);
 
-        /*
-        try {
-            YoloV5Detector objectDetector = new YoloV5Detector(this, "yolov5s-fp16.tflite", "coco_label.txt", 6300, 85, 320);
-            for (ImageData imageData : imageNames) {
-                Log.i("DashboardActivity", "Finding COCO images");
-                objectDetector.detectImages(imageData);
-            }
-        } catch (Exception ex) {
-            Log.i("DashboardActivity", "Got exception: " + ex);
-        }
-        */
-        try {
-            YoloV5Detector objectDetector = new YoloV5Detector(this, "iitj_yolov5s_320.tflite", "iitj_classes.txt", 6300, 41, 320);
-
-            for (ImageData imageData : imageNames) {
-                Log.i("DashboardActivity", "Finding IITJ images");
-                objectDetector.detectImages(imageData);
-            }
-        } catch (Exception ex) {
-            Log.i("DashboardActivity", "Got exception: " + ex);
-        }
-
-        try{
-            TesseractTextDetection tessTxtDetection = new TesseractTextDetection(this);
-            tessTxtDetection.copyTessDataFiles();
-
-            for (ImageData imageData : imageNames) {
-                Log.i("DashboardActivity", "Finding IITJ images text");
-                tessTxtDetection.performOCR(imageData);
-            }
-        }catch(Exception ex){
-            Log.i("DashboardActivity", "Got exception in OCR: " + ex);
-        }
+        MLModelHelper helper = new MLModelHelper(this, imageNames);
+        helper.executeModels(Arrays.asList(ModelTypes.YOLOV5_IITJ, ModelTypes.TESSERACT_ANDROID));
 
         for (ImageData imageData : imageNames) {
             long imageSize = ImageUtils.getImageSize(this, imageData.getImageName());
             if (imageSize != -1) {
-                Log.i("DashboardActivity", "Data collected for image: " + JSONMapper.toJSON(imageData));
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Data collected for image: " + JSONMapper.toJSON(imageData));
                 dbHelper.addImage(imageData.getImageName(), imageData);
             }
         }
 
         loadFullGallery();
-
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) findViewById(R.id.custom_toast_root));
-
-        TextView toastText = layout.findViewById(R.id.toast_text);
-        toastText.setText("Images stored in database!");
-
-        Toast toast = new Toast(getApplicationContext());
-        toast.setDuration(Toast.LENGTH_LONG);
-        toast.setView(layout);
-        toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 250);
-        toast.show();
+        CustomToast.makeText(this, "Images stored in database!").show();
     }
 
     @Override
@@ -288,12 +205,12 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("MainActivity", "Come to resume");
+        Log.i(Constants.DASHBOARD_ACTIVITY, "Come to resume");
         ImageAdapter adapter = (ImageAdapter) recyclerView.getAdapter();
         if (adapter != null) {
             adapter.updateImageList(ImageDataManager.getInstance().getImageDataList());
         }
-        Log.i("MainActivity", "ImageAdapter found");
+        Log.i(Constants.DASHBOARD_ACTIVITY, "ImageAdapter found");
         Intent intent = getIntent();
         handleIncomingIntent(intent);
     }
@@ -302,7 +219,7 @@ public class DashboardActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra("objectOverviewData")) {
             String objectName = intent.getStringExtra("objectOverviewData");
             if (objectName != null) {
-                Log.d("DashboardActivity", "221: Received object name: " + objectName);
+                Log.i(Constants.DASHBOARD_ACTIVITY, "Received object name: " + objectName);
                 searchEditText.setText(objectName);
                 searchEditText.setSelection(objectName.length()); // Move cursor to the end
             }

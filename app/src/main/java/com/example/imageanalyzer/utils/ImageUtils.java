@@ -17,29 +17,18 @@ import com.example.imageanalyzer.beans.GPSMetadata;
 import com.example.imageanalyzer.beans.ICCProfileMetadata;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ExifMetadata;
-import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.ObjectsRecognition;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.beans.Recognition;
 import com.example.imageanalyzer.beans.enums.ImageType;
 
 
-import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.support.common.ops.NormalizeOp;
-import org.tensorflow.lite.support.image.ImageProcessor;
-import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.image.ops.ResizeOp;
-import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ImageUtils {
 
@@ -73,7 +62,6 @@ public class ImageUtils {
             cursor.close();
         }
 
-        //System.out.println(imageDataList);
         return imageDataList;
     }
 
@@ -85,14 +73,14 @@ public class ImageUtils {
             ExifSubIFDDirectory exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
             if (exifDirectory != null) {
                 result =  new ExifMetadata(exifDirectory.getString(ExifSubIFDDirectory.TAG_MODEL),exifDirectory.getString(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL),exifDirectory.getString(ExifSubIFDDirectory.TAG_EXPOSURE_TIME),exifDirectory.getString(ExifSubIFDDirectory.TAG_FNUMBER),exifDirectory.getString(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
-                Log.d("Image Metadata", "Camera Model: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_MODEL));
-                Log.d("Image Metadata", "Date/Time Original: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
-                Log.d("Image Metadata", "Exposure Time: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_EXPOSURE_TIME));
-                Log.d("Image Metadata", "Aperture: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_FNUMBER));
-                Log.d("Image Metadata", "ISO Speed Rating: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
+                Log.d(Constants.IMAGE_UTILS_CLASS, "Camera Model: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_MODEL));
+                Log.d(Constants.IMAGE_UTILS_CLASS, "Date/Time Original: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL));
+                Log.d(Constants.IMAGE_UTILS_CLASS, "Exposure Time: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_EXPOSURE_TIME));
+                Log.d(Constants.IMAGE_UTILS_CLASS, "Aperture: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_FNUMBER));
+                Log.d(Constants.IMAGE_UTILS_CLASS, "ISO Speed Rating: " + exifDirectory.getString(ExifSubIFDDirectory.TAG_ISO_EQUIVALENT));
             }
         }catch(Exception ex){
-            Log.e("Image ExifMetadata", "Error determining exif metadata: " + ex.getMessage());
+            Log.e(Constants.IMAGE_UTILS_CLASS, "Error determining exif metadata: " + ex.getMessage());
         }
         return result;
     }
@@ -110,7 +98,7 @@ public class ImageUtils {
                 }
             }*/
         }catch(Exception ex){
-            Log.e("Image IccProfileMetadata", "Error determining iccprofile metadata: " + ex.getMessage());
+            Log.e(Constants.IMAGE_UTILS_CLASS, "Error determining iccprofile metadata: " + ex.getMessage());
         }
         return result;
     }
@@ -127,13 +115,13 @@ public class ImageUtils {
                 double latitude = gpsDirectory.getDouble(GpsDirectory.TAG_LATITUDE);
                 String longitudeRef = gpsDirectory.getString(GpsDirectory.TAG_LONGITUDE);
                 double longitude = gpsDirectory.getDouble(GpsDirectory.TAG_DEST_LONGITUDE_REF);
-                Log.i("Image Metadata", "GPS Latitude: " + latitudeRef + " " + latitude);
-                Log.i("Image Metadata", "GPS Longitude: " + longitudeRef + " " + longitude);
+                Log.i(Constants.IMAGE_UTILS_CLASS, "GPS Latitude: " + latitudeRef + " " + latitude);
+                Log.i(Constants.IMAGE_UTILS_CLASS, "GPS Longitude: " + longitudeRef + " " + longitude);
                 result = new GPSMetadata(latitudeRef, latitude, longitudeRef, longitude);
             }
 
         }catch(Exception ex){
-            Log.e("Image GPSMetadata", "Error determining gps metadata: " + ex.getMessage());
+            Log.e(Constants.IMAGE_UTILS_CLASS, "Error determining gps metadata: " + ex.getMessage());
         }
         return result;
     }
@@ -155,10 +143,10 @@ public class ImageUtils {
         ImageType result = ImageType.UNKNOWN;
         try {
             String mimeType = java.nio.file.Files.probeContentType(imageFile.toPath());
-            Log.i("Image Metadata", "Actual imgae type: " + mimeType);
+            Log.i(Constants.IMAGE_UTILS_CLASS, "Actual image type: " + mimeType);
             result = ImageType.getEnum(mimeType);
         } catch (java.io.IOException e) {
-            Log.e("Image Metadata", "Error determining image type: " + e.getMessage());
+            Log.e(Constants.IMAGE_UTILS_CLASS, "Error determining image type: " + e.getMessage());
         }
         return result;
     }
@@ -173,7 +161,7 @@ public class ImageUtils {
         try{
             result = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
         }catch(Exception ex){
-            Log.i("ImageUtils.convertToBitmap","Error occured while converting to bitmap", ex);
+            Log.i(Constants.IMAGE_UTILS_CLASS,"Error occured while converting to bitmap", ex);
         }
         return result;
     }
@@ -192,116 +180,52 @@ public class ImageUtils {
             imageData.getObjectsRecognition().addObject(eachRecognition.getLabelName().toLowerCase());
         }
 
-        Log.i("ImageUtils", "Found object: " + objectsFound + " for image: " + imageData.getImageName());
+        Log.i(Constants.IMAGE_UTILS_CLASS, "Found object: " + objectsFound + " for image: " + imageData.getImageName());
     }
 
-    public static Bitmap createEmptyBitmap(int displayImageSize, int displayImageSize1,int color) {
-        Bitmap ret = Bitmap.createBitmap(displayImageSize, displayImageSize1, Bitmap.Config.RGB_565);
-        if (color != 0) {
-            ret.eraseColor(color);
-        }
-        return ret;
-    }
+    private static Map<String, List<ImageData>> findObjectFrequency(List<ImageData> allImages) {
+        Map<String, List<ImageData>> objectAllocatationMap = new HashMap<>();
 
-    public static TensorImage bitmapToTensorImageForDetection(Bitmap bitmapIn, int width, int height, float[] means, float[] stds) {
-        ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.BILINEAR))
-                .add(new NormalizeOp(means, stds))
-                .build();
-
-        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
-        tensorImage.load(bitmapIn);
-        return imageProcessor.process(tensorImage);
-    }
-
-    public static TensorImage bitmapToTensorImageForRecognition(Bitmap bitmapIn, int width, int height, float mean, float std) {
-        // Create an ImageProcessor to apply operations to the input image
-        ImageProcessor imageProcessor =
-                new ImageProcessor.Builder()
-                        .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.BILINEAR))
-                        .add(new TransformToGrayscaleOp())
-                        .add(new NormalizeOp(mean, std))
-                        .build();
-
-        // Create a new TensorImage object of data type FLOAT32
-        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
-
-        // Load the input bitmap into the TensorImage
-        tensorImage.load(bitmapIn);
-
-        // Process the TensorImage using the ImageProcessor
-        tensorImage = imageProcessor.process(tensorImage);
-
-        // Return the processed TensorImage
-        return tensorImage;
-    }
-
-    public static List<ImageOverviewPair> getTopImagesForTopObjects(List<ImageData> allImages, int topObjectLimit, int imageLimitPerObject) {
-        // Step 1: Fetch all images and initialize frequency map
-        Map<String, Integer> objectFrequencyMap = new HashMap<>();
-        Map<String, List<ImageData>> objectToImagesMap = new HashMap<>();
-
-        // Step 2: Build frequency map and collect images for each object
-        for (ImageData image : allImages) {
-            if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null) {
-                for (String object : image.getObjectsRecognition().getObjectsDetected()) {
-                    // Update frequency count
-                    objectFrequencyMap.put(object, objectFrequencyMap.getOrDefault(object, 0) + 1);
-
-                    // Add image to the list associated with the object
-                    objectToImagesMap.computeIfAbsent(object, k -> new ArrayList<>());
-                    if (Objects.requireNonNull(objectToImagesMap.get(object)).size() < imageLimitPerObject) {
-                        Objects.requireNonNull(objectToImagesMap.get(object)).add(image);
-                    }
+        for (ImageData eachImg : allImages) {
+            if (eachImg.getObjectsRecognition() != null && eachImg.getObjectsRecognition().getObjectsDetected() != null) {
+                for (String eachObj : eachImg.getObjectsRecognition().getObjectsDetected()) {
+                    objectAllocatationMap.putIfAbsent(eachObj, new ArrayList<>());
+                    Objects.requireNonNull(objectAllocatationMap.get(eachObj)).add(eachImg);
                 }
             }
         }
 
-        // Step 3: Sort objects by frequency and collect the top ones
-        List<ImageOverviewPair> result = new ArrayList<>();
-        objectFrequencyMap.entrySet().stream()
-                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())) // Sort in descending order by frequency
-                .limit(topObjectLimit) // Limit to top `topObjectLimit` objects
-                .forEach(entry -> {
-                    String objectName = entry.getKey();
-                    List<ImageData> imagesForObject = objectToImagesMap.get(objectName);
-
-                    // Add each image with its associated object name to the result list
-                    for (ImageData image : imagesForObject) {
-                        result.add(new ImageOverviewPair(objectName, image));
-                    }
-                });
-
-        Log.i("ImageUtils", "Get images for dashboard overview: " + JSONMapper.toJSON(result));
-        return result;
+        return objectAllocatationMap;
     }
 
-    public static List<OverviewActivityPair> getImagesPerObjectType( List<ImageData> allImages, int limit) {
-        List<OverviewActivityPair> overviewPairs = new ArrayList<>();
-        Map<String, List<ImageData>> objectImageMap = new HashMap<>();
+    public static List<OverviewActivityPair> getObjectsForScreens(List<ImageData> allImages, int objectLimit, int imageLimit){
+        Map<String, List<ImageData>> objectFrequencyMap = findObjectFrequency(allImages);
 
-        for (ImageData imageData : allImages) {
-            if (imageData.getObjectsRecognition() != null && imageData.getObjectsRecognition().getObjectsDetected() != null) {
-                Set<String> objectsDetected = imageData.getObjectsRecognition().getObjectsDetected();
-                for (String object : objectsDetected) {
-                    objectImageMap.computeIfAbsent(object, k -> new ArrayList<>()).add(imageData);
-                }
-            }
-        }
+        List<Map.Entry<String, List<ImageData>>> sortedEntries = new ArrayList<>(objectFrequencyMap.entrySet());
+        sortedEntries.sort((key, value) -> Integer.compare(value.getValue().size(), key.getValue().size()));
 
-        for (Map.Entry<String, List<ImageData>> entry : objectImageMap.entrySet()) {
+        List<OverviewActivityPair> result = new ArrayList<>();
+        int objectCount = 0;
+
+        for (Map.Entry<String, List<ImageData>> entry : sortedEntries) {
+            if (objectLimit > 0 && objectCount >= objectLimit) break;
+
             String objectName = entry.getKey();
-            List<ImageData> images = entry.getValue();
-            List<ImageData> limitedImages = images.size() > limit ? images.subList(0, limit) : images;
+            List<ImageData> allImagesForObject = entry.getValue();
 
-            OverviewActivityPair overviewPair = new OverviewActivityPair();
-            overviewPair.setObjectName(objectName);
-            overviewPair.setImageList(new ArrayList<>(limitedImages));
-            overviewPairs.add(overviewPair);
+            List<ImageData> extractedImageList;
+            if (imageLimit > 0 && imageLimit < allImagesForObject.size()) {
+                extractedImageList = allImagesForObject.subList(0, imageLimit);
+            } else {
+                extractedImageList = new ArrayList<>(allImagesForObject);
+            }
+
+            result.add(new OverviewActivityPair(objectName, extractedImageList));
+
+            objectCount++;
         }
 
-        Log.i("ImageUtils", "Get images by object type: " + JSONMapper.toJSON(overviewPairs));
-        return overviewPairs;
+        return result;
     }
 
     public static String getFormattedImageName(String objectName){

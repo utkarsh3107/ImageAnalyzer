@@ -1,16 +1,12 @@
 package com.example.imageanalyzer.activity;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,11 +25,12 @@ import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ObjectsRecognition;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.service.CustomToast;
+import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageDataManager;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -56,7 +53,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         image = (ImageData) getIntent().getSerializableExtra("backendObject");
         if (image == null) {
-            Log.i("DetailsActivity", "Got empty imageobject: ");
+            Log.i(Constants.DETAILS_ACTIVITY, "Got empty image object: ");
         }
 
         dbHelper = new DBHelper(this);
@@ -83,9 +80,6 @@ public class DetailsActivity extends AppCompatActivity {
         cancelIcon = findViewById(R.id.cancel_icon_edittext);
         objectsEditText = findViewById(R.id.image_dimensions_edit_text);
 
-        RelativeLayout.LayoutParams buttonLayoutParams = (RelativeLayout.LayoutParams) overviewButton.getLayoutParams();
-
-        // Get the image path passed from the previous screen
         String imagePath = image.getImagePath();
 
         // Set the background image dynamically
@@ -95,104 +89,58 @@ public class DetailsActivity extends AppCompatActivity {
                     .into(backgroundImage);
         }
 
-        overviewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                RelativeLayout.LayoutParams roundedBarParams = (RelativeLayout.LayoutParams) roundedBar.getLayoutParams();
-                RelativeLayout.LayoutParams detailedSectionParams = (RelativeLayout.LayoutParams) detailedInfoSection.getLayoutParams();
+        backImg.setOnClickListener(v -> finish());
 
-                if (detailedInfoSection.getVisibility() == View.GONE) {
-                    // Show detailed section and move rounded_bar above it
-                    detailedInfoSection.setVisibility(View.VISIBLE);
+        overviewButton.setOnClickListener(view -> {
+            RelativeLayout.LayoutParams roundedBarParams = (RelativeLayout.LayoutParams) roundedBar.getLayoutParams();
 
-                    // Set rounded_bar above detailed_info_section
-                    roundedBarParams.addRule(RelativeLayout.ABOVE, R.id.detailed_info_section);
-                    roundedBarParams.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    roundedBar.setLayoutParams(roundedBarParams);
+            if (detailedInfoSection.getVisibility() == View.GONE) {
+                detailedInfoSection.setVisibility(View.VISIBLE);
 
-                } else {
-                    // Hide detailed section and move rounded_bar to original position
-                    detailedInfoSection.setVisibility(View.GONE);
+                roundedBarParams.addRule(RelativeLayout.ABOVE, R.id.detailed_info_section);
+                roundedBarParams.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                roundedBar.setLayoutParams(roundedBarParams);
 
-                    // Set rounded_bar at the bottom of the screen
-                    roundedBarParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                    roundedBarParams.removeRule(RelativeLayout.ABOVE);
-                    roundedBar.setLayoutParams(roundedBarParams);
-                }
+            } else {
+                detailedInfoSection.setVisibility(View.GONE);
+                roundedBarParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                roundedBarParams.removeRule(RelativeLayout.ABOVE);
+                roundedBar.setLayoutParams(roundedBarParams);
             }
         });
 
-        backImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
+        editIcon.setOnClickListener(view -> {
+            editLayout.setVisibility(View.VISIBLE);
+            editIcon.setVisibility(View.GONE);
+            objectsIdentified.setVisibility(View.GONE);
+            objectsEditText.setText(objectsIdentified.getText());
         });
 
-        editIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Show edit layout and hide the edit icon and text view
-                editLayout.setVisibility(View.VISIBLE);
-                editIcon.setVisibility(View.GONE);
-                objectsIdentified.setVisibility(View.GONE);
-                // Copy text to edit field
-                objectsEditText.setText(objectsIdentified.getText());
+        saveIcon.setOnClickListener(view -> {
+            String updatedObjects = objectsEditText.getText().toString();
+            Set<String> updatedSet = new HashSet<>(Arrays.asList(updatedObjects.split(",\\s*")));
+
+            if(image.getObjectsRecognition() == null){
+                image.setObjectsRecognition(new ObjectsRecognition());
             }
+            objectsIdentified.setText(updatedObjects);
+            editLayout.setVisibility(View.GONE);
+            editIcon.setVisibility(View.VISIBLE);
+            objectsIdentified.setVisibility(View.VISIBLE);
+
+            image.getObjectsRecognition().setObjectsDetected(updatedSet);
+            dbHelper.updateImageContext(image);
+
+            ImageDataManager.getInstance().updateImage(image);
+
+            CustomToast.makeText(this, "Objects updated successfully!").show();
         });
 
-        saveIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Save the new text and hide the edit layout
-                String updatedObjects = objectsEditText.getText().toString();
-                Set<String> updatedSet = new HashSet<>(Arrays.asList(updatedObjects.split(",\\s*")));
-
-                if(image.getObjectsRecognition() == null){
-                    image.setObjectsRecognition(new ObjectsRecognition());
-                }
-                objectsIdentified.setText(updatedObjects);
-                editLayout.setVisibility(View.GONE);
-                editIcon.setVisibility(View.VISIBLE);
-                objectsIdentified.setVisibility(View.VISIBLE);
-
-                image.getObjectsRecognition().setObjectsDetected(updatedSet);
-                // Update the values in the database
-                dbHelper.updateImageContext(image);
-
-                // Reset visibility and layout parameters to ensure UI remains intact
-                //detailedInfoSection.setVisibility(View.GONE);
-                //RelativeLayout.LayoutParams roundedBarParams = (RelativeLayout.LayoutParams) roundedBar.getLayoutParams();
-                //roundedBarParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                //roundedBarParams.removeRule(RelativeLayout.ABOVE);
-                //roundedBar.setLayoutParams(roundedBarParams);
-
-                ImageDataManager.getInstance().updateImage(image);
-
-                // Show a confirmation message
-                LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) findViewById(R.id.custom_toast_root));
-
-                TextView toastText = layout.findViewById(R.id.toast_text);
-                toastText.setText("Objects updated successfully!");
-
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_LONG);
-                toast.setView(layout);
-                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 250);
-                toast.show();
-            }
-        });
-
-        cancelIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Hide edit layout without saving and reset to original text
-                editLayout.setVisibility(View.GONE);
-                editIcon.setVisibility(View.VISIBLE);
-                objectsIdentified.setVisibility(View.VISIBLE);
-                objectsEditText.setText(objectsIdentified.getText());
-            }
+        cancelIcon.setOnClickListener(view -> {
+            editLayout.setVisibility(View.GONE);
+            editIcon.setVisibility(View.VISIBLE);
+            objectsIdentified.setVisibility(View.VISIBLE);
+            objectsEditText.setText(objectsIdentified.getText());
         });
 
         init(image);
@@ -212,19 +160,19 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         if (image.getObjectsRecognition() != null && image.getObjectsRecognition().getObjectsDetected() != null && !image.getObjectsRecognition().getObjectsDetected().isEmpty()) {
-            objectsIdentified.setText(joinStrings(image.getObjectsRecognition().getObjectsDetected(), ", "));
+            objectsIdentified.setText(joinStrings(image.getObjectsRecognition().getObjectsDetected()));
         }
 
-        if(image.getImgText() != null && image.getImgText().getImageText() != null && !image.getImgText().getImageText().equals("")){
+        if(image.getImgText() != null && image.getImgText().getImageText() != null && !image.getImgText().getImageText().isEmpty()){
             textIdentified.setText(image.getImgText().getImageText());
         }
     }
 
-    private String joinStrings(Set<String> set, String delimiter) {
+    private String joinStrings(Set<String> set) {
         StringBuilder sb = new StringBuilder();
         for (String item : set) {
             if (sb.length() > 0) {
-                sb.append(delimiter);
+                sb.append(", ");
             }
             sb.append(item);
         }

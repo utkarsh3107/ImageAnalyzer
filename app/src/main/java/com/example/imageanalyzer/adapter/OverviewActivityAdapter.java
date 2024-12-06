@@ -1,13 +1,11 @@
 package com.example.imageanalyzer.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,22 +16,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.activity.DashboardActivity;
-import com.example.imageanalyzer.activity.DetailsActivity;
 import com.example.imageanalyzer.beans.ImageData;
-import com.example.imageanalyzer.beans.ImageOverviewPair;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
+import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageUtils;
-import com.example.imageanalyzer.utils.JSONMapper;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivityAdapter.OverviewActivityImageHolder>{
 
-    private List<OverviewActivityPair> imageList;
-    private Context context;
+    private final List<OverviewActivityPair> imageList;
+    private final Context context;
 
     public OverviewActivityAdapter(Context context, List<OverviewActivityPair> imageList) {
         this.context = context;
@@ -68,7 +61,7 @@ public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivi
         String objectName = object.getObjectName();
         List<ImageData> imageDataList = object.getImageList();
 
-        Log.i("OverviewActivityAdapter", "Object name "+ objectName+ " has image count: " + imageDataList.size());
+        Log.i(Constants.OVERVIEW_ACTIVITY_ADAPTER_CLASS, "Object name "+ objectName+ " has image count: " + imageDataList.size());
 
         if(!imageDataList.isEmpty()){
             Glide.with(context)
@@ -96,10 +89,8 @@ public class OverviewActivityAdapter extends RecyclerView.Adapter<OverviewActivi
                     .into(holder.rightBottomImageView);
         }
 
-        // Set the object title
         holder.overviewObjectTitle.setText(ImageUtils.getFormattedImageName(objectName));
 
-        // Set click listener for the plus button
         holder.overviewExpandButton.setOnClickListener(v -> {
             Intent intent = new Intent(context, DashboardActivity.class);
             intent.putExtra("objectOverviewData", objectName);

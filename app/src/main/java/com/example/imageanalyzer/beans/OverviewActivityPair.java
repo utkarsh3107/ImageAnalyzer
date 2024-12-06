@@ -7,6 +7,14 @@ public class OverviewActivityPair {
     private String objectName;
     private List<ImageData> imageList;
 
+    public OverviewActivityPair(){
+
+    }
+
+    public OverviewActivityPair(String objectName, List<ImageData> imageList){
+        this.objectName = objectName;
+        this.imageList = imageList;
+    }
     public String getObjectName() {
         return objectName;
     }

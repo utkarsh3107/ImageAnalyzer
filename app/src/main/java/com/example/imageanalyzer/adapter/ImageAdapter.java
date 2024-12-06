@@ -10,17 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.imageanalyzer.R;
-import com.example.imageanalyzer.activity.DashboardActivity;
 import com.example.imageanalyzer.activity.DetailsActivity;
 import com.example.imageanalyzer.beans.ImageData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     private List<ImageData> imageList;
-    private Context context;
+    private final Context context;
 
     public ImageAdapter(Context context, List<ImageData> imageList) {
         this.context = context;
@@ -48,7 +46,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         ImageData object = imageList.get(position);
         String imageUrl = object.getImagePath();
 
-        // Load image using Glide or other image loading library
         Glide.with(context)
                 .load(imageUrl)
                 .into(holder.imageView);
@@ -68,15 +65,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void updateImageList(List<ImageData> newImageList) {
         this.imageList = newImageList;
         notifyDataSetChanged();
-    }
-
-
-    public List<String> convertObjToURL(){
-        List<String> imageList = new ArrayList<>();
-        for(ImageData eachImage: this.imageList){
-            imageList.add(eachImage.getImagePath());
-        }
-        return imageList;
     }
 
 }

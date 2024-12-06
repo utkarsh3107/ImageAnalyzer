@@ -26,8 +26,6 @@ import java.util.List;
 
 public class ObjectsOverviewActivity extends AppCompatActivity {
 
-    private RecyclerView overviewRecyclerView;
-
     private DBHelper dbHelper;
 
     private ImageView backImg;
@@ -40,7 +38,6 @@ public class ObjectsOverviewActivity extends AppCompatActivity {
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
-        // Optional: if you need to hide the status bar
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
@@ -52,16 +49,9 @@ public class ObjectsOverviewActivity extends AppCompatActivity {
 
     private void init(){
 
-        backImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        backImg.setOnClickListener(v -> finish());
 
-
-        List<ImageData> imageNames = dbHelper.fetchImages();
-        List<OverviewActivityPair> overviewImgList = ImageUtils.getImagesPerObjectType(imageNames, 3);
+        List<OverviewActivityPair> overviewImgList = dbHelper.fetchImage(-1, 3);
 
         RecyclerView recyclerView = findViewById(R.id.overviewRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));

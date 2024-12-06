@@ -7,6 +7,7 @@ import android.util.Size;
 
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.Recognition;
+import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageUtils;
 
 import org.tensorflow.lite.DataType;
@@ -27,26 +28,25 @@ import java.util.PriorityQueue;
 
 public class YoloV5Detector {
 
-    private Size INPNUT_SIZE;
-    private int[] OUTPUT_SIZE;
+    private final Size INPUT_SIZE;
+    private final int[] OUTPUT_SIZE;
     private Interpreter tflite;
     private List<String> associatedAxisLabels;
     private final Context context;
+
     public YoloV5Detector(Context context, String model, String classes, int classSizeDim, int totalClasses, int inputSize){
-        Log.d("ObjectDetector", "Loading yolo_v5 model");
-        INPNUT_SIZE = new Size(inputSize, inputSize);
+        Log.d(Constants.YOLOV5_CLASS, "Loading yolo_v5 model");
+        INPUT_SIZE = new Size(inputSize, inputSize);
         OUTPUT_SIZE = new int[]{1, classSizeDim, totalClasses};
         this.context = context;
         Interpreter.Options options = new Interpreter.Options();
         try{
             ByteBuffer tfliteModel = FileUtil.loadMappedFile(context, model);
             tflite = new Interpreter(tfliteModel, options);
-            String LABEL_FILE = classes;
-            associatedAxisLabels = FileUtil.loadLabels(context, LABEL_FILE);
-
-            Log.i("ObjectDetector", "Loading yolo_v5 model successful");
+            associatedAxisLabels = FileUtil.loadLabels(context, classes);
+            Log.i(Constants.YOLOV5_CLASS, "Loading yolo_v5 model successful");
         }catch(Exception ex){
-            Log.i("ObjectDetector", "Error initialzing class ", ex);
+            Log.i(Constants.YOLOV5_CLASS, "Error initializing class ", ex);
         }
     }
 
@@ -55,7 +55,7 @@ public class YoloV5Detector {
             Bitmap bitmap = ImageUtils.convertToBitmap(this.context, imageProps.getImagePath());
 
             ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                            .add(new ResizeOp(INPNUT_SIZE.getHeight(), INPNUT_SIZE.getWidth(), ResizeOp.ResizeMethod.BILINEAR))
+                            .add(new ResizeOp(INPUT_SIZE.getHeight(), INPUT_SIZE.getWidth(), ResizeOp.ResizeMethod.BILINEAR))
                             .add(new NormalizeOp(0, 255))
                             .build();
             TensorImage yolov5sTfliteInput = new TensorImage(DataType.FLOAT32);
@@ -65,7 +65,7 @@ public class YoloV5Detector {
 
             TensorBuffer probabilityBuffer;
             probabilityBuffer = TensorBuffer.createFixedSize(OUTPUT_SIZE, DataType.FLOAT32);
-            Log.i("ObjectDetector.detectImages", yolov5sTfliteInput.getTensorBuffer().getFlatSize() + " " + probabilityBuffer.getFlatSize());
+            Log.i(Constants.YOLOV5_CLASS, "detectImages: " +yolov5sTfliteInput.getTensorBuffer().getFlatSize() + " " + probabilityBuffer.getFlatSize());
 
             tflite.run(yolov5sTfliteInput.getBuffer(), probabilityBuffer.getBuffer());
 
@@ -74,7 +74,7 @@ public class YoloV5Detector {
 
             ImageUtils.initObjects(imageProps, nmsRecognitions);
         }catch(Exception ex){
-            Log.e("ObjectDetector.detectObjects", "Error detectObjects class ", ex);
+            Log.e(Constants.YOLOV5_CLASS, "detectImages: Error detectObjects class ", ex);
         }
 
     }
