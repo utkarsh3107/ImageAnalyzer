@@ -28,6 +28,7 @@ import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.beans.enums.ModelTypes;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.search.ImageDataCache;
 import com.example.imageanalyzer.service.CustomToast;
 import com.example.imageanalyzer.service.MLModelHelper;
 import com.example.imageanalyzer.utils.Constants;
@@ -64,6 +65,7 @@ public class DashboardActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         dbHelper = new DBHelper(this);
+        ImageDataCache.refreshCacheIfNeeded(dbHelper);
         recyclerView = findViewById(R.id.recyclerView);
         searchEditText = findViewById(R.id.searchEditText);
         gallerySubHeaderText = findViewById(R.id.gallerySubHeaderText);
@@ -108,6 +110,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadFullGallery(){
+        ImageDataCache.refreshCacheIfNeeded(dbHelper);
+
         List<ImageData> imageNames = dbHelper.fetchImages();
 
         ImageDataManager.getInstance().setImageDataList(imageNames);
@@ -127,7 +131,9 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void searchImages(String query){
-        List<ImageData> objectImages = dbHelper.fetchImageForObjectKeywords(query);
+        ImageDataCache.refreshCacheIfNeeded(dbHelper);
+
+        List<ImageData> objectImages = ImageDataCache.searchImages(query);
         gallerySubHeaderText.setText(R.string.search_results);
 
         StaggeredGridLayoutManager staggeredGridLayoutManager =
@@ -190,7 +196,7 @@ public class DashboardActivity extends AppCompatActivity {
                 dbHelper.addImage(imageData.getImageName(), imageData);
             }
         }
-
+        ImageDataCache.initializeCache(dbHelper);
         loadFullGallery();
         CustomToast.makeText(this, "Images stored in database!").show();
     }

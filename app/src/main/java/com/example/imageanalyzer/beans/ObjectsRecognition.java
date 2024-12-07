@@ -8,6 +8,10 @@ public class ObjectsRecognition implements Serializable {
 
     private Set<String> objectsDetected;
 
+    public ObjectsRecognition(){
+        objectsDetected = new HashSet<>();
+    }
+
     public Set<String> getObjectsDetected() {
         return objectsDetected;
     }
@@ -17,9 +21,6 @@ public class ObjectsRecognition implements Serializable {
     }
 
     public void addObject(String object){
-        if(objectsDetected == null){
-            this.objectsDetected = new HashSet<>();
-        }
         this.objectsDetected.add(object);
     }
 

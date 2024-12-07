@@ -25,6 +25,7 @@ import com.example.imageanalyzer.R;
 import com.example.imageanalyzer.beans.ImageData;
 import com.example.imageanalyzer.beans.ObjectsRecognition;
 import com.example.imageanalyzer.database.DBHelper;
+import com.example.imageanalyzer.search.ImageDataCache;
 import com.example.imageanalyzer.service.CustomToast;
 import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageDataManager;
@@ -132,7 +133,7 @@ public class DetailsActivity extends AppCompatActivity {
             dbHelper.updateImageContext(image);
 
             ImageDataManager.getInstance().updateImage(image);
-
+            ImageDataCache.markCacheDirty();
             CustomToast.makeText(this, "Objects updated successfully!").show();
         });
 

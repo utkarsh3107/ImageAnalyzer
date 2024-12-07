@@ -8,19 +8,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.example.imageanalyzer.beans.ImageData;
+import com.example.imageanalyzer.beans.ObjectsRecognition;
 import com.example.imageanalyzer.beans.OverviewActivityPair;
 import com.example.imageanalyzer.utils.Constants;
 import com.example.imageanalyzer.utils.ImageUtils;
 import com.example.imageanalyzer.utils.JSONMapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "ImageDB";
@@ -114,7 +111,13 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 int colIndex = cursor.getColumnIndex(COLUMN_CONTEXT);
                 if(colIndex >= 0) {
-                    ImageData imageObj = JSONMapper.toObject(cursor.getString(colIndex),ImageData.class);
+                    ImageData imageObj = JSONMapper.toObject(cursor.getString(colIndex), ImageData.class);
+                    if (imageObj.getObjectsRecognition() == null) {
+                        imageObj.setObjectsRecognition(new ObjectsRecognition());
+                    }
+                    if (imageObj.getObjectsRecognition().getObjectsDetected() == null) {
+                        imageObj.getObjectsRecognition().setObjectsDetected(new HashSet<>());
+                    }
                     result.add(imageObj);
                 }
             } while (cursor.moveToNext());
