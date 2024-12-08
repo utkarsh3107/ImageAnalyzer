@@ -1,5 +1,6 @@
 package com.example.imageanalyzer.activity;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,7 +43,7 @@ public class DetailsActivity extends AppCompatActivity {
     private AppCompatButton overviewButton;
     private ImageData image;
     private TextView imageDimensions, imageSize, imageDate, objectsIdentified, textIdentified;
-    private ImageButton editIcon, saveIcon, cancelIcon;
+    private ImageButton editIcon, saveIcon, cancelIcon, expandTextIcon;
     private RelativeLayout editLayout;
     private EditText objectsEditText;
     private DBHelper dbHelper;
@@ -80,6 +82,7 @@ public class DetailsActivity extends AppCompatActivity {
         saveIcon = findViewById(R.id.save_icon);
         cancelIcon = findViewById(R.id.cancel_icon_edittext);
         objectsEditText = findViewById(R.id.image_dimensions_edit_text);
+        expandTextIcon = findViewById(R.id.expand_text_icon);
 
         String imagePath = image.getImagePath();
 
@@ -144,6 +147,10 @@ public class DetailsActivity extends AppCompatActivity {
             objectsEditText.setText(objectsIdentified.getText());
         });
 
+        expandTextIcon.setOnClickListener(view -> {
+            showFullTextDialog(image.getImgText().getImageText());
+        });
+
         init(image);
     }
 
@@ -165,8 +172,35 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         if(image.getImgText() != null && image.getImgText().getImageText() != null && !image.getImgText().getImageText().isEmpty()){
-            textIdentified.setText(image.getImgText().getImageText());
+            String fullText = image.getImgText().getImageText();
+            if (fullText.length() > 100) {
+                textIdentified.setText(fullText.substring(0, 100) + "...");
+            } else {
+                textIdentified.setText(fullText);
+            }
         }
+    }
+
+    private void showFullTextDialog(String fullText) {
+        // Inflate the dialog layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.full_text_dialog, null);
+
+        // Set up the dialog
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        // Populate the dialog with the full text
+        TextView fullTextView = dialogView.findViewById(R.id.full_text_view);
+        fullTextView.setText(fullText);
+
+        // Handle the close button
+        Button closeButton = dialogView.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show the dialog
+        dialog.show();
     }
 
     private String joinStrings(Set<String> set) {
