@@ -49,6 +49,9 @@ public class TesseractTextDetection {
             Bitmap bitmap = BitmapFactory.decodeFile(image.getImagePath());
             //Bitmap bitmap = preProcessImage1(image);
             String text = performOCR(bitmap);
+            if(text != null){
+                text = text.replace("\n", "").replace("\r", "");
+            }
             image.setImgText(new TextDetected(text));
             Log.i("TesseractTextDetection", "For image: "+ image.getImageName() + " text detected: "+ text);
             tessBaseAPI.setImage(bitmap);

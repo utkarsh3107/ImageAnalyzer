@@ -148,7 +148,11 @@ public class DetailsActivity extends AppCompatActivity {
         });
 
         expandTextIcon.setOnClickListener(view -> {
-            showFullTextDialog(image.getImgText().getImageText());
+            if(image.getImgText() != null && image.getImgText().getImageText() != null){
+                showFullTextDialog(image.getImgText().getImageText());
+            }else{
+                showFullTextDialog("NA");
+            }
         });
 
         init(image);
